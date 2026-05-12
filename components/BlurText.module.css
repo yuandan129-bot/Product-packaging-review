@@ -1,0 +1,11 @@
+.blurText {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+
+.blurText span {
+  display: inline-block;
+  will-change: transform, filter, opacity;
+}

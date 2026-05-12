@@ -1,0 +1,194 @@
+{
+  "GB7718": {
+    "name": "预包装食品标签通则",
+    "version": "2011",
+    "description": "食品标签的基本要求和强制标注内容",
+    "mandatoryElements": [
+      {
+        "id": 1,
+        "name": "产品名称",
+        "requirement": "必须标注产品的真实名称",
+        "example": "苹果汁饮料"
+      },
+      {
+        "id": 2,
+        "name": "配料表",
+        "requirement": "按含量从高到低列出所有配料",
+        "example": "水、浓缩苹果汁、糖、柠檬酸"
+      },
+      {
+        "id": 3,
+        "name": "净含量/规格",
+        "requirement": "标注产品的净含量，单位为g、ml、L等",
+        "example": "250ml"
+      },
+      {
+        "id": 4,
+        "name": "生产日期",
+        "requirement": "标注生产日期，格式为YYYY.MM.DD",
+        "example": "2026.04.21"
+      },
+      {
+        "id": 5,
+        "name": "保质期",
+        "requirement": "标注保质期或保存期",
+        "example": "12个月"
+      },
+      {
+        "id": 6,
+        "name": "贮存条件",
+        "requirement": "标注产品的贮存条件",
+        "example": "阴凉干燥处"
+      },
+      {
+        "id": 7,
+        "name": "执行标准号",
+        "requirement": "标注产品执行的标准号",
+        "example": "GB/T 29602"
+      },
+      {
+        "id": 8,
+        "name": "生产许可证编号",
+        "requirement": "标注SC证号，格式为SC+14位数字",
+        "example": "SC12345678901234"
+      },
+      {
+        "id": 9,
+        "name": "生产商/经销者信息",
+        "requirement": "标注企业名称、地址、电话",
+        "example": "XX食品有限公司，地址：XX市XX区"
+      }
+    ],
+    "allergenRequirements": {
+      "description": "致敏原标注规范",
+      "commonAllergens": [
+        "大豆",
+        "坚果",
+        "乳制品",
+        "鸡蛋",
+        "花生",
+        "芝麻",
+        "贝类",
+        "鱼类"
+      ],
+      "requirement": "若配料中含有致敏源，必须在显眼位置标注'含有XX'或'可能含有XX'"
+    },
+    "fontSizeRequirements": {
+      "mandatoryContent": "≥1.8mm",
+      "netContent": "≥4mm",
+      "description": "强制标注内容的最小字体高度"
+    },
+    "checklist": [
+      "产品名称是否真实准确",
+      "配料表是否按含量从高到低排列",
+      "净含量单位是否正确",
+      "生产日期格式是否为YYYY.MM.DD",
+      "保质期是否清晰标注",
+      "贮存条件是否明确",
+      "执行标准号是否正确且现行",
+      "SC证号格式是否正确",
+      "企业信息是否完整",
+      "致敏原是否标注",
+      "字体高度是否符合要求"
+    ]
+  },
+  "GB28050": {
+    "name": "预包装食品营养标签通则",
+    "version": "2011",
+    "description": "营养成分表的标注要求和规范",
+    "mandatoryNutrients": [
+      {
+        "name": "能量",
+        "unit": "kJ",
+        "requirement": "必须标注，单位必须为kJ"
+      },
+      {
+        "name": "蛋白质",
+        "unit": "g",
+        "requirement": "必须标注，单位必须为g"
+      },
+      {
+        "name": "脂肪",
+        "unit": "g",
+        "requirement": "必须标注，单位必须为g"
+      },
+      {
+        "name": "碳水化合物",
+        "unit": "g",
+        "requirement": "必须标注，单位必须为g"
+      },
+      {
+        "name": "钠",
+        "unit": "mg",
+        "requirement": "必须标注，单位必须为mg"
+      }
+    ],
+    "energyCalculation": {
+      "formula": "能量(kJ) ≈ (蛋白质g×17 + 脂肪g×37 + 碳水g×17)",
+      "tolerance": "±20%",
+      "description": "AI计算的能量值与包装标注值偏差超过20%时需要质疑"
+    },
+    "roundingRules": {
+      "energy": "整数",
+      "protein": "0.1g",
+      "fat": "0.1g",
+      "carbohydrate": "0.1g",
+      "sodium": "整数mg",
+      "description": "营养成分的修约间隔规则"
+    },
+    "checklist": [
+      "是否标注了5大营养成分",
+      "能量单位是否为kJ",
+      "蛋白质、脂肪、碳水单位是否为g",
+      "钠单位是否为mg",
+      "能量值是否与计算值相符（±20%）",
+      "修约间隔是否符合规范",
+      "营养成分表是否清晰易读",
+      "是否标注了参考值百分比（可选）"
+    ]
+  },
+  "GB2760": {
+    "name": "食品添加剂使用标准",
+    "version": "2014",
+    "description": "允许使用的食品添加剂及其使用限制",
+    "commonAdditives": [
+      {
+        "name": "山梨酸钾",
+        "category": "防腐剂",
+        "maxUsage": "0.1g/kg",
+        "applicableFoods": ["饮料", "果汁", "乳制品"]
+      },
+      {
+        "name": "苯甲酸钠",
+        "category": "防腐剂",
+        "maxUsage": "0.1g/kg",
+        "applicableFoods": ["饮料", "果汁"]
+      },
+      {
+        "name": "柠檬酸",
+        "category": "酸味剂",
+        "maxUsage": "不限",
+        "applicableFoods": ["饮料", "糖果", "烘焙食品"]
+      },
+      {
+        "name": "糖精钠",
+        "category": "甜味剂",
+        "maxUsage": "0.15g/kg",
+        "applicableFoods": ["饮料", "糖果"]
+      },
+      {
+        "name": "阿斯巴甜",
+        "category": "甜味剂",
+        "maxUsage": "0.4g/kg",
+        "applicableFoods": ["饮料", "糖果"]
+      }
+    ],
+    "checklist": [
+      "配料表中的添加剂是否在GB 2760允许清单中",
+      "添加剂的使用量是否在规定范围内",
+      "添加剂是否适用于该产品类别",
+      "是否有禁用的添加剂",
+      "添加剂标注是否清晰"
+    ]
+  }
+}

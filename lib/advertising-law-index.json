@@ -1,0 +1,104 @@
+{
+  "prohibitedTerms": {
+    "superlatives": {
+      "category": "最高级词汇",
+      "severity": "critical",
+      "terms": [
+        { "word": "最", "example": "最好、最优、最先进", "replacement": "优质、精选" },
+        { "word": "第一", "example": "第一品牌、第一选择", "replacement": "知名品牌、热销产品" },
+        { "word": "唯一", "example": "唯一选择、唯一推荐", "replacement": "优选、推荐" },
+        { "word": "独一无二", "example": "独一无二的配方", "replacement": "特色配方" },
+        { "word": "冠军", "example": "销售冠军、品质冠军", "replacement": "热销、优质" },
+        { "word": "领先", "example": "行业领先、技术领先", "replacement": "先进、优秀" },
+        { "word": "顶级", "example": "顶级品质、顶级工艺", "replacement": "优质、精良" },
+        { "word": "极致", "example": "极致口感、极致体验", "replacement": "卓越、优秀" }
+      ]
+    },
+    "absoluteStatements": {
+      "category": "绝对性表述",
+      "severity": "critical",
+      "terms": [
+        { "word": "永远", "example": "永远新鲜、永远美味", "replacement": "新鲜、美味" },
+        { "word": "完全", "example": "完全天然、完全无添加", "replacement": "天然、无添加" },
+        { "word": "绝对", "example": "绝对安全、绝对健康", "replacement": "安全、健康" },
+        { "word": "100%", "example": "100%纯天然、100%无污染", "replacement": "采用天然原料、无污染" },
+        { "word": "全部", "example": "全部采用进口原料", "replacement": "采用进口原料" }
+      ]
+    },
+    "medicalClaims": {
+      "category": "医疗相关表述",
+      "severity": "critical",
+      "terms": [
+        { "word": "治疗", "example": "治疗便秘、治疗高血压", "replacement": "含有膳食纤维、营养丰富" },
+        { "word": "治愈", "example": "治愈糖尿病", "replacement": "改善血糖" },
+        { "word": "特效", "example": "特效降脂、特效减肥", "replacement": "有助于、促进" },
+        { "word": "神奇", "example": "神奇功效、神奇配方", "replacement": "独特、优秀" },
+        { "word": "奇迹", "example": "创造奇迹、奇迹般效果", "replacement": "显著效果" },
+        { "word": "秘方", "example": "祖传秘方、独家秘方", "replacement": "特色配方" }
+      ]
+    },
+    "falseInfo": {
+      "category": "虚假信息",
+      "severity": "critical",
+      "terms": [
+        { "word": "进口", "example": "进口原料（未实际进口）", "replacement": "采用进口原料（需有证明）" },
+        { "word": "原产地", "example": "原产地法国（实际非法国）", "replacement": "符合国际标准" },
+        { "word": "有机", "example": "有机产品（未认证）", "replacement": "通过有机认证（需有证书）" },
+        { "word": "绿色", "example": "绿色食品（未认证）", "replacement": "通过绿色认证（需有证书）" }
+      ]
+    },
+    "comparativeStatements": {
+      "category": "比较性表述",
+      "severity": "high",
+      "terms": [
+        { "word": "比竞品好", "example": "比XX品牌好", "replacement": "优质、精选" },
+        { "word": "超越", "example": "超越国际标准", "replacement": "符合国际标准" },
+        { "word": "击败", "example": "击败竞争对手", "replacement": "优秀、热销" },
+        { "word": "优于", "example": "优于其他品牌", "replacement": "优质、精选" }
+      ]
+    },
+    "authority": {
+      "category": "权威性表述",
+      "severity": "high",
+      "terms": [
+        { "word": "国家级", "example": "国家级产品、国家级标准", "replacement": "符合国家标准" },
+        { "word": "世界级", "example": "世界级品质", "replacement": "国际品质、符合国际标准" },
+        { "word": "国际", "example": "国际品质、国际标准", "replacement": "符合国际标准（需有证明）" },
+        { "word": "获奖", "example": "获得国际大奖（未获奖）", "replacement": "获得XX奖（需有证书）" },
+        { "word": "推荐", "example": "专家推荐、医生推荐", "replacement": "消费者推荐（需有证明）" }
+      ]
+    },
+    "statistics": {
+      "category": "虚假统计数据",
+      "severity": "high",
+      "terms": [
+        { "word": "99%", "example": "99%消费者满意", "replacement": "消费者满意（需有数据支持）" },
+        { "word": "8成", "example": "8成用户推荐", "replacement": "用户推荐（需有数据支持）" },
+        { "word": "销量第一", "example": "销量第一（未验证）", "replacement": "热销产品" },
+        { "word": "畅销", "example": "畅销产品（无依据）", "replacement": "热销产品（需有销售数据）" }
+      ]
+    }
+  },
+  "allowedTerms": [
+    { "term": "优质", "description": "相对性表述，可使用" },
+    { "term": "精选", "description": "相对性表述，可使用" },
+    { "term": "新鲜", "description": "相对性表述，可使用" },
+    { "term": "天然", "description": "相对性表述，可使用" },
+    { "term": "健康", "description": "相对性表述，可使用" },
+    { "term": "营养", "description": "相对性表述，可使用" },
+    { "term": "美味", "description": "相对性表述，可使用" },
+    { "term": "方便", "description": "相对性表述，可使用" },
+    { "term": "富含", "description": "营养信息表述，可使用" },
+    { "term": "低脂", "description": "营养信息表述，可使用" }
+  ],
+  "checkRules": [
+    "检查是否包含最高级词汇（最、第一、唯一等）",
+    "检查是否包含绝对性表述（永远、完全、绝对等）",
+    "检查是否包含医疗相关词汇（治疗、治愈等）",
+    "检查是否包含虚假功效声称",
+    "检查是否包含虚假的产地或认证信息",
+    "检查是否包含虚假的权威性表述",
+    "检查是否包含虚假的统计数据",
+    "检查是否包含不实的比较表述"
+  ]
+}
