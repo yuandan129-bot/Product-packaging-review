@@ -58,9 +58,24 @@ function ImageTrail({
   const currentIndexRef = useRef(0)
   const childrenArray = useMemo(() => Children.toArray(children), [children])
 
+  const lastRandomRef = useRef(-1)
+
   const addToTrail = useCallback(
     (mousePos: { x: number; y: number }) => {
       if (childrenArray.length === 0) return
+
+      let idx: number
+      if (random) {
+        // 避免连续重复：从剩余候选中随机选
+        const candidates = childrenArray
+          .map((_, i) => i)
+          .filter((i) => childrenArray.length === 1 || i !== lastRandomRef.current)
+        idx = candidates[Math.floor(Math.random() * candidates.length)]
+        lastRandomRef.current = idx
+      } else {
+        idx = currentIndexRef.current
+        currentIndexRef.current = (idx + 1) % childrenArray.length
+      }
 
       const newItem: TrailItem = {
         id: generateId(),
@@ -69,22 +84,19 @@ function ImageTrail({
         rotation: (Math.random() - 0.5) * rotationRange * 2,
         animationSequence,
         scale: 1,
-        child: childrenArray[
-          random
-            ? Math.floor(Math.random() * childrenArray.length)
-            : currentIndexRef.current
-        ],
-      }
-
-      if (!random) {
-        currentIndexRef.current =
-          (currentIndexRef.current + 1) % childrenArray.length
+        child: childrenArray[idx],
       }
 
       if (newOnTop) {
         trailRef.current.push(newItem)
       } else {
         trailRef.current.unshift(newItem)
+      }
+
+      // 限制最大 trail 数量，防止 DOM 过载导致卡顿
+      const MAX_ITEMS = 30
+      while (trailRef.current.length > MAX_ITEMS) {
+        trailRef.current.shift()
       }
     },
     [childrenArray, rotationRange, animationSequence, newOnTop]

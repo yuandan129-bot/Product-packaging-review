@@ -9,11 +9,184 @@
 
 .content {
   width: 100%;
-  max-width: 600px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
 }
+
+/* ============================================
+   Stepper — 流程步骤指示器
+   ============================================ */
+
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  padding: var(--space-lg) var(--space-sm);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.stepWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 连接线 */
+.stepLine {
+  position: absolute;
+  top: 18px;              /* 对齐圆心 */
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+  transition: background 0.5s ease;
+}
+
+.stepLineDone {
+  background: var(--foreground);
+}
+
+/* 节点圆圈 */
+.stepNode {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  background: var(--card);
+  border: 2px solid var(--border);
+  transition: all 0.35s ease;
+}
+
+/* pending — 置灰 */
+.stepNode_pending {
+  border-color: var(--border);
+  background: var(--muted);
+}
+
+/* active — 高亮 */
+.stepNode_active {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--primary-foreground);
+}
+
+/* completed — 深色填充 */
+.stepNode_completed {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--primary-foreground);
+}
+
+/* 脉冲动效 — active 状态 */
+.stepNodePulse {
+  animation: stepPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes stepPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+}
+
+.stepCheck {
+  width: 16px;
+  height: 16px;
+}
+
+.stepDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-foreground);
+  animation: dotBlink 1s ease-in-out infinite;
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.stepNum {
+  font-size: 14px;
+  font-weight: 540;
+  color: var(--muted-foreground);
+  opacity: 0.4;
+}
+
+/* 步骤文字 */
+.stepText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--space-xs);
+  gap: 2px;
+}
+
+.stepLabel {
+  font-size: 14px;
+  font-weight: 540;
+  letter-spacing: -0.1px;
+  color: var(--foreground);
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+
+.stepLabelPending {
+  color: var(--border);
+  font-weight: 340;
+}
+
+.stepLabelActive {
+  color: var(--foreground);
+  font-weight: 540;
+}
+
+.stepDesc {
+  font-size: 12px;
+  font-weight: 320;
+  color: var(--border);
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+
+/* 当步骤完成或激活时，描述文字可见 */
+.stepNode_active ~ .stepText .stepDesc,
+.stepNode_completed ~ .stepText .stepDesc {
+  color: var(--muted-foreground);
+}
+
+/* 修复：不同状态下描述的颜色 */
+.stepWrapper:has(.stepNode_active) .stepDesc {
+  color: var(--muted-foreground);
+}
+
+.stepWrapper:has(.stepNode_completed) .stepDesc {
+  color: var(--muted-foreground);
+}
+
+.stepWrapper:has(.stepNode_pending) .stepDesc {
+  color: var(--border);
+}
+
+/* ============================================
+   Image Preview
+   ============================================ */
 
 .imagePreview {
   border-radius: var(--radius-md);
@@ -21,13 +194,115 @@
   box-shadow: var(--shadow-md);
   background: var(--card);
   border: 1px solid var(--border);
+  max-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .imagePreview img {
   width: 100%;
   height: auto;
+  max-height: 360px;
+  object-fit: contain;
   display: block;
 }
+
+/* ============================================
+   Physical Dimensions
+   ============================================ */
+
+.dimensionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.dimToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  color: var(--foreground);
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.dimToggle:hover {
+  border-color: var(--foreground);
+  border-style: solid;
+}
+
+.dimToggleHint {
+  font-size: 13px;
+  font-weight: 330;
+  color: var(--muted-foreground);
+}
+
+.dimRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  overflow: hidden;
+}
+
+.dimInput {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+}
+
+.dimLabel {
+  font-size: 13px;
+  font-weight: 480;
+  color: var(--foreground);
+  letter-spacing: -0.1px;
+}
+
+.dimSep {
+  font-size: 16px;
+  font-weight: 330;
+  padding-bottom: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.dimInput .input {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 330;
+  padding: var(--space-sm) 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s ease;
+  width: 100%;
+}
+
+.dimInput .input:focus {
+  border-color: var(--foreground);
+}
+
+.dimHint {
+  font-size: 13px;
+  font-weight: 330;
+  letter-spacing: -0.14px;
+  color: var(--foreground);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ============================================
+   Actions
+   ============================================ */
 
 .actions {
   display: flex;
@@ -48,7 +323,7 @@
   background: var(--foreground);
   color: var(--primary-foreground);
   flex: 1;
-  min-width: 150px;
+  min-width: 160px;
   transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -59,8 +334,28 @@
 }
 
 .analyzeButton:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
+}
+
+.btnLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .backButton {
@@ -78,7 +373,7 @@
   transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.backButton:hover {
+.backButton:hover:not(:disabled) {
   background: var(--foreground);
   color: var(--primary-foreground);
   border-color: var(--foreground);
@@ -86,7 +381,38 @@
   box-shadow: var(--shadow-md);
 }
 
+.backButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
 @media (max-width: 768px) {
+  .stepper {
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+  }
+
+  .stepLabel {
+    font-size: 12px;
+  }
+
+  .stepDesc {
+    display: none;
+  }
+
+  .stepNode {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stepLine {
+    top: 14px;
+  }
+
   .actions {
     flex-direction: column;
   }

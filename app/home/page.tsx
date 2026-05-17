@@ -7,7 +7,6 @@ import Image from 'next/image'
 import { HoverText } from '../../components/HoverText'
 import { ShinyText } from '../../components/ShinyText'
 import DocumentModal from '../../components/DocumentModal'
-import { compressImage } from '../../lib/compressImage'
 import styles from './home.module.css'
 
 const STANDARDS = [
@@ -49,14 +48,25 @@ export default function Home() {
     }
   }, [router])
 
-  // 包装背标图片上传 → 跳转审核页
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 包装背标图片上传 → 保存品牌文件后跳转审核页
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     const reader = new FileReader()
-    reader.onload = () => {
+    reader.onload = async () => {
       sessionStorage.setItem('uploadedImage', reader.result as string)
+
+      // 读取品牌文件内容并存入 sessionStorage，供审核 API 使用
+      if (brandFiles.length > 0) {
+        const brandData: { name: string; type: string; content: string }[] = []
+        for (const f of brandFiles) {
+          const content = await readFileContent(f)
+          brandData.push({ name: f.name, type: f.type, content })
+        }
+        sessionStorage.setItem('brandFiles', JSON.stringify(brandData))
+      }
+
       router.push('/analyze')
     }
     reader.onerror = () => {
@@ -64,8 +74,22 @@ export default function Home() {
     }
     reader.readAsDataURL(file)
 
-    // 重置 input 以允许重复选择同一文件
     e.target.value = ''
+  }
+
+  // 读取品牌文件内容：文本类读文字，图片类转 base64
+  const readFileContent = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const isText = /\.(md|markdown|json|txt)$/i.test(file.name)
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = () => reject(new Error('读取失败'))
+      if (isText) {
+        reader.readAsText(file)
+      } else {
+        reader.readAsDataURL(file)
+      }
+    })
   }
 
   // 品牌规范文件上传 → 追加到数组，支持多个文件

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { motion } from "motion/react"
 import Image from "next/image"
@@ -12,25 +12,19 @@ function calcEAN13CheckDigit(digits: string): number {
   for (let i = 0; i < 12; i++) {
     sum += parseInt(digits[i]) * (i % 2 === 0 ? 1 : 3)
   }
-  const check = (10 - (sum % 10)) % 10
-  return check
+  return (10 - (sum % 10)) % 10
 }
 
-// 根据条码尺寸智能建议字号
-function suggestFontSize(width: number, showText: boolean): number {
-  if (!showText) return 0
-  if (width <= 100) return 12
-  if (width <= 200) return 16
-  if (width <= 400) return 22
-  return 28
-}
-
-// 根据条码尺寸智能建议高度
-function suggestHeight(width: number): number {
-  if (width <= 100) return 40
-  if (width <= 200) return 60
-  if (width <= 300) return 80
-  return 100
+// 各格式的模块数（估算，用于从目标宽度反推模块宽）
+function estimateModules(format: string): number {
+  switch (format) {
+    case "ean13": return 95
+    case "ean8":  return 67
+    case "upc":   return 95
+    case "code128": return 110
+    case "itf14": return 156
+    default: return 100
+  }
 }
 
 const BARCODE_FORMATS = [
@@ -42,13 +36,57 @@ const BARCODE_FORMATS = [
 ]
 
 const FONT_FAMILIES = [
+  { value: "MiSans", label: "MiSans（小米体）" },
   { value: "monospace", label: "等宽字体" },
   { value: "arial", label: "Arial" },
   { value: "helvetica", label: "Helvetica" },
   { value: "ocr-b", label: "OCR-B（条码标准字体）" },
 ]
 
+// 尺寸预设
+interface Preset {
+  label: string
+  ratio: string
+  w: number
+  h: number
+  icon: "square" | "portrait" | "landscape" | "wide" | "tall"
+}
+
+const PRESETS: Preset[] = [
+  { label: "1:1", ratio: "1:1", w: 250, h: 250, icon: "square" },
+  { label: "3:4", ratio: "3:4", w: 300, h: 400, icon: "portrait" },
+  { label: "2:1", ratio: "2:1", w: 400, h: 200, icon: "landscape" },
+  { label: "16:9", ratio: "16:9", w: 400, h: 225, icon: "wide" },
+  { label: "3:1", ratio: "3:1", w: 450, h: 150, icon: "wide" },
+  { label: "1:2", ratio: "1:2", w: 200, h: 400, icon: "tall" },
+]
+
 const UNITS = ["mm", "px"]
+
+/* ── 比例示意图图标组件 ── */
+function RatioIcon({ icon }: { icon: Preset["icon"] }) {
+  return (
+    <span className={styles.ratioIcon}>
+      <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
+        {icon === "square" && (
+          <rect x="4" y="2" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        )}
+        {icon === "portrait" && (
+          <rect x="7" y="1" width="14" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        )}
+        {icon === "landscape" && (
+          <rect x="2" y="4" width="24" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        )}
+        {icon === "wide" && (
+          <rect x="1" y="5" width="26" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        )}
+        {icon === "tall" && (
+          <rect x="9" y="0" width="10" height="20" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        )}
+      </svg>
+    </span>
+  )
+}
 
 export default function BarcodePage() {
   const router = useRouter()
@@ -69,36 +107,41 @@ export default function BarcodePage() {
 
   // 文字
   const [showText, setShowText] = useState(true)
-  const [fontSize, setFontSize] = useState(22)
-  const [fontFamily, setFontFamily] = useState("monospace")
+  const [fontSize, setFontSize] = useState(20)
+  const [fontFamily, setFontFamily] = useState("MiSans")
 
   // 生成状态
   const [generated, setGenerated] = useState(false)
-  const [autoSuggest, setAutoSuggest] = useState(false)
+  const [fontsReady, setFontsReady] = useState(false)
 
-  // 输入条码值时自动计算校验码
-  // EAN-13：输入 12 位 → 自动计算第 13 位校验码；输入 13 位 → 验证校验码
+  // 确保网页字体加载完成后 canvas 才能正确渲染
+  useEffect(() => {
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready.then(() => setFontsReady(true))
+    } else {
+      setFontsReady(true)
+    }
+  }, [])
+
+  // 完整 EAN-13（自动补校验码）
   const fullEAN13 = (() => {
     if (format === "ean13") {
-      // 13 位：自动纠正校验码（第 13 位），避免用户手输错误导致 JsBarcode 报错
       if (codeValue.length === 13 && /^\d{13}$/.test(codeValue)) {
-        const correct = codeValue.slice(0, 12) + calcEAN13CheckDigit(codeValue.slice(0, 12))
-        return correct
+        return codeValue.slice(0, 12) + calcEAN13CheckDigit(codeValue.slice(0, 12))
       }
-      // 12 位：自动补全校验码
       if (codeValue.length === 12 && /^\d{12}$/.test(codeValue))
         return codeValue + calcEAN13CheckDigit(codeValue)
     }
     return null
   })()
 
+  // 校验码计算
   useEffect(() => {
     if (format === "ean13") {
       if (codeValue.length === 12 && /^\d{12}$/.test(codeValue)) {
         setCheckDigit(calcEAN13CheckDigit(codeValue))
       } else if (codeValue.length === 13 && /^\d{13}$/.test(codeValue)) {
-        const expected = calcEAN13CheckDigit(codeValue.slice(0, 12))
-        setCheckDigit(expected)
+        setCheckDigit(calcEAN13CheckDigit(codeValue.slice(0, 12)))
       } else {
         setCheckDigit(null)
       }
@@ -108,25 +151,17 @@ export default function BarcodePage() {
     setGenerated(false)
   }, [codeValue, format])
 
-  // 尺寸变化时自动刷新建议
-  useEffect(() => {
-    if (autoSuggest && showText) {
-      setFontSize(suggestFontSize(width, showText))
-      setHeight(suggestHeight(width))
-    }
-  }, [width, autoSuggest, showText])
-
-  const handleGenerate = async () => {
+  /* ── 生成条码 ── */
+  const handleGenerate = useCallback(async () => {
     if (!codeValue) {
       alert("请输入条码数值")
       return
     }
     if (!canvasRef.current) return
 
-    // 构建完整条码值（EAN-13 自动补全校验码，非 EAN-13 直接使用输入值）
-    let fullCode = fullEAN13 || codeValue
+    const fullCode = fullEAN13 || codeValue
 
-    // 根据格式校验长度
+    // 按格式校验长度
     const lengthMap: Record<string, number> = {
       ean13: 13, ean8: 8, upc: 12, itf14: 14,
     }
@@ -140,20 +175,26 @@ export default function BarcodePage() {
       const JsBarcode = (await import("jsbarcode")).default
       const canvas = canvasRef.current
 
-      // 先设尺寸（会重置 canvas），再渲染
-      canvas.width = width
-      canvas.height = height
+      // 从用户目标尺寸反推 JsBarcode 的模块宽和条高
+      // margin=10 → 左右共 20px
+      const totalModules = estimateModules(format)
+      const marginTotal = 20 // margin left + right
+      const moduleWidth = Math.max(1, Math.round((width - marginTotal) / totalModules))
 
-      const barWidth = Math.max(1, Math.round(width / (fullCode.length * 11 + 20)))
-      const barHeight = showText ? Math.max(20, height - fontSize - 12) : height
+      // 总高度 = barHeight + (显示文字 ? fontSize + textMargin + marginTop + marginBottom : marginTop + marginBottom)
+      // marginTop/marginBottom 默认 = margin = 10, textMargin = 2
+      const marginV = 20 // marginTop + marginBottom
+      const textSpace = showText ? fontSize + 2 + marginV : marginV
+      const barHeight = Math.max(10, height - textSpace)
 
       JsBarcode(canvas, fullCode, {
         format: format as any,
-        width: barWidth,
+        width: moduleWidth,
         height: barHeight,
         displayValue: showText,
         fontSize: fontSize,
         font: fontFamily,
+        fontOptions: "",
         textMargin: 2,
         margin: 10,
         background: "#ffffff",
@@ -164,29 +205,46 @@ export default function BarcodePage() {
       console.error("条码生成失败:", err)
       alert(`条码生成失败：${err instanceof Error ? err.message : "请检查输入值是否符合格式要求"}`)
     }
+  }, [codeValue, fullEAN13, format, width, height, showText, fontSize, fontFamily])
+
+  // 尺寸或文字参数变化时自动重新生成
+  useEffect(() => {
+    if (generated) {
+      const t = setTimeout(() => handleGenerate(), 150)
+      return () => clearTimeout(t)
+    }
+  }, [width, height, fontSize, showText, fontFamily, format])
+
+  /* ── 应用预设尺寸 ── */
+  const applyPreset = (preset: Preset) => {
+    setWidth(preset.w)
+    setHeight(preset.h)
   }
 
-  const handleDownload = async (type: "png" | "svg") => {
-    if (type === "png") {
-      // 高分辨率导出：用离屏 canvas 以 3 倍分辨率渲染，保证下载图片清晰可用
-      const fullCode = fullEAN13 || codeValue
-      if (!fullCode) return
+  /* ── 下载 PNG ── */
+  const handleDownloadPNG = useCallback(async () => {
+    const fullCode = fullEAN13 || codeValue
+    if (!fullCode) return
+    try {
       const JsBarcode = (await import("jsbarcode")).default
       const scale = 3
       const exportCanvas = document.createElement("canvas")
+      const totalModules = estimateModules(format)
+      const moduleWidth = Math.max(1, Math.round((width * scale - 20) / totalModules))
+      const textSpace = showText ? fontSize * scale + 2 + 20 : 20
+      const barHeight = Math.max(10, height * scale - textSpace)
+
       exportCanvas.width = width * scale
       exportCanvas.height = height * scale
-      const barWidth = Math.max(1, Math.round((width * scale) / (fullCode.length * 11 + 20)))
-      const barHeight = showText
-        ? Math.max(20, height * scale - fontSize * scale - 12)
-        : height * scale
+
       JsBarcode(exportCanvas, fullCode, {
         format: format as any,
-        width: barWidth,
+        width: moduleWidth,
         height: barHeight,
         displayValue: showText,
         fontSize: fontSize * scale,
         font: fontFamily,
+        fontOptions: "",
         textMargin: 2,
         margin: 10 * scale,
         background: "#ffffff",
@@ -196,36 +254,66 @@ export default function BarcodePage() {
       link.download = `barcode-${fullCode}.png`
       link.href = exportCanvas.toDataURL("image/png")
       link.click()
-    } else {
-      // SVG 导出
-      const fullCode = fullEAN13 || codeValue
-      if (!fullCode) return
-      const JsBarcode = import("jsbarcode")
-      JsBarcode.then((mod) => {
-        const svg = document.createElement("svg")
-        document.body.appendChild(svg)
-        ;(mod.default as any)(svg, fullCode, {
-          format: format,
-          width: 2,
-          height: height,
-          displayValue: showText,
-          fontSize: fontSize,
-          font: fontFamily,
-          margin: 10,
-        })
-        const data = new XMLSerializer().serializeToString(svg)
-        const blob = new Blob([data], { type: "image/svg+xml" })
-        const link = document.createElement("a")
-        link.download = `barcode-${codeValue}.svg`
-        link.href = URL.createObjectURL(blob)
-        link.click()
-        document.body.removeChild(svg)
-      })
+    } catch (err) {
+      console.error("PNG 导出失败:", err)
+      alert("PNG 导出失败，请重试")
     }
-  }
+  }, [codeValue, fullEAN13, format, width, height, showText, fontSize, fontFamily])
+
+  /* ── 下载 SVG ── */
+  const handleDownloadSVG = useCallback(async () => {
+    const fullCode = fullEAN13 || codeValue
+    if (!fullCode) return
+    try {
+      const JsBarcode = (await import("jsbarcode")).default
+      const totalModules = estimateModules(format)
+      const moduleWidth = Math.max(1, Math.round((width - 20) / totalModules))
+      const textSpace = showText ? fontSize + 2 + 20 : 20
+      const barHeight = Math.max(10, height - textSpace)
+
+      // 用正确的 namespace 创建 SVG 元素
+      const svgns = "http://www.w3.org/2000/svg"
+      const svg = document.createElementNS(svgns, "svg")
+      svg.setAttribute("xmlns", svgns)
+
+      JsBarcode(svg as any, fullCode, {
+        format: format as any,
+        width: moduleWidth,
+        height: barHeight,
+        displayValue: showText,
+        fontSize: fontSize,
+        font: fontFamily,
+        fontOptions: "",
+        textMargin: 2,
+        margin: 10,
+        background: "#ffffff",
+        lineColor: "#000000",
+      } as any)
+
+      // 修正 SVG font-size：JsBarcode 设置的是纯数字，需要补 px 单位
+      const textElems = svg.querySelectorAll("text")
+      textElems.forEach((el) => {
+        const fs = el.getAttribute("font-size")
+        if (fs && !fs.includes("px")) {
+          el.setAttribute("font-size", fs + "px")
+        }
+      })
+
+      const data = new XMLSerializer().serializeToString(svg)
+      const blob = new Blob([data], { type: "image/svg+xml;charset=utf-8" })
+      const link = document.createElement("a")
+      link.download = `barcode-${fullCode}.svg`
+      link.href = URL.createObjectURL(blob)
+      link.click()
+      URL.revokeObjectURL(link.href)
+    } catch (err) {
+      console.error("SVG 导出失败:", err)
+      alert(`SVG 导出失败：${err instanceof Error ? err.message : "未知错误"}`)
+    }
+  }, [codeValue, fullEAN13, format, width, height, showText, fontSize, fontFamily])
 
   const handleCopyValue = () => {
-    const full = checkDigit !== null ? codeValue + checkDigit : codeValue
+    const full = fullEAN13 || codeValue
     navigator.clipboard.writeText(full)
   }
 
@@ -293,6 +381,14 @@ export default function BarcodePage() {
                   校验码：<strong>{checkDigit}</strong>
                 </span>
               )}
+              {(() => {
+                const lenMap: Record<string, number> = { ean13: 13, ean8: 8, upc: 12, itf14: 14 }
+                const expected = lenMap[format]
+                if (expected && codeValue.length >= expected) {
+                  return <span key="check" className={styles.checkmark}>✓</span>
+                }
+                return null
+              })()}
             </div>
             {checkDigit !== null && (
               <p className={styles.hint}>
@@ -321,21 +417,30 @@ export default function BarcodePage() {
             </select>
           </div>
 
-          {/* 3. 尺寸设置 */}
+          {/* 3. 尺寸预设 */}
           <div className={styles.field}>
-            <label className={styles.label}>
-              条码尺寸
-              <button
-                className={styles.suggestBtn}
-                onClick={() => setAutoSuggest(!autoSuggest)}
-                style={{
-                  backgroundColor: autoSuggest ? "var(--foreground)" : "transparent",
-                  color: autoSuggest ? "var(--primary-foreground)" : "var(--foreground)",
-                }}
-              >
-                {autoSuggest ? "✓ 智能建议" : "智能建议"}
-              </button>
-            </label>
+            <label className={styles.label}>比例预设</label>
+            <div className={styles.presetRow}>
+              {PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  className={`${styles.presetBtn} ${
+                    width === preset.w && height === preset.h ? styles.presetBtnActive : ""
+                  }`}
+                  onClick={() => applyPreset(preset)}
+                  title={`${preset.ratio}（${preset.w}×${preset.h}）`}
+                >
+                  <RatioIcon icon={preset.icon} />
+                  <span className={styles.presetLabel}>{preset.label}</span>
+                </button>
+              ))}
+            </div>
+            <p className={styles.hint}>点击预设快速设置尺寸，或手动输入</p>
+          </div>
+
+          {/* 4. 尺寸手动调整 */}
+          <div className={styles.field}>
+            <label className={styles.label}>条码尺寸</label>
             <div className={styles.sizeRow}>
               <div className={styles.sizeInput}>
                 <span className={styles.sizeLabel}>宽</span>
@@ -343,20 +448,21 @@ export default function BarcodePage() {
                   type="number"
                   className={styles.input}
                   value={width}
-                  onChange={(e) => setWidth(Number(e.target.value))}
+                  onChange={(e) => setWidth(Math.max(50, Math.min(1200, Number(e.target.value) || 50)))}
                   min={50}
-                  max={600}
+                  max={1200}
                 />
               </div>
+              <span className={styles.sizeSep}>×</span>
               <div className={styles.sizeInput}>
                 <span className={styles.sizeLabel}>高</span>
                 <input
                   type="number"
                   className={styles.input}
                   value={height}
-                  onChange={(e) => setHeight(Number(e.target.value))}
+                  onChange={(e) => setHeight(Math.max(30, Math.min(600, Number(e.target.value) || 30)))}
                   min={30}
-                  max={300}
+                  max={600}
                 />
               </div>
               <select
@@ -371,14 +477,9 @@ export default function BarcodePage() {
                 ))}
               </select>
             </div>
-            {autoSuggest && (
-              <p className={styles.hint}>
-                已根据宽度 {width}px 智能建议高度 {height}px、字号 {fontSize}px
-              </p>
-            )}
           </div>
 
-          {/* 4. 显示文字 */}
+          {/* 5. 显示文字 */}
           <div className={styles.field}>
             <label className={styles.label}>下方显示数字</label>
             <label className={styles.toggle}>
@@ -394,7 +495,7 @@ export default function BarcodePage() {
             </label>
           </div>
 
-          {/* 5. 字体设置 */}
+          {/* 6. 字体设置 */}
           {showText && (
             <div className={styles.field}>
               <label className={styles.label}>字体设置</label>
@@ -417,9 +518,10 @@ export default function BarcodePage() {
                     type="number"
                     className={styles.input}
                     value={fontSize}
-                    onChange={(e) => setFontSize(Number(e.target.value))}
+                    onChange={(e) => setFontSize(Math.max(8, Math.min(48, Number(e.target.value) || 14)))}
                     min={8}
-                    max={40}
+                    max={48}
+                    step={1}
                   />
                 </div>
               </div>
@@ -429,16 +531,19 @@ export default function BarcodePage() {
             </div>
           )}
 
-          {/* 6. 生成按钮 */}
-          <button className={styles.generateBtn} onClick={handleGenerate}>
-            生成条码
+          {/* 7. 生成按钮 */}
+          <button
+            className={styles.generateBtn}
+            onClick={handleGenerate}
+            disabled={!fontsReady}
+          >
+            {fontsReady ? "生成条码" : "加载字体中..."}
           </button>
         </div>
 
         {/* 右侧预览区 */}
         <div className={styles.preview}>
           <div className={styles.previewCard}>
-            {/* Canvas 始终挂载，确保 ref 永远可用；未生成时隐藏 */}
             <canvas
               ref={canvasRef}
               className={styles.canvas}
@@ -452,24 +557,18 @@ export default function BarcodePage() {
                 transition={{ duration: 0.4 }}
               >
                 <div className={styles.downloadRow}>
-                  <button
-                    className={styles.downloadBtn}
-                    onClick={() => handleDownload("png")}
-                  >
-                    下载 PNG
+                  <button className={styles.downloadBtn} onClick={handleDownloadPNG}>
+                    下载 PNG（高清）
                   </button>
-                  <button
-                    className={styles.downloadBtnOutline}
-                    onClick={() => handleDownload("svg")}
-                  >
-                    下载 SVG
+                  <button className={styles.downloadBtnOutline} onClick={handleDownloadSVG}>
+                    下载 SVG（矢量）
                   </button>
                 </div>
               </motion.div>
             ) : (
               <div className={styles.placeholder}>
                 <span className={styles.placeholderIcon}>∥∥∥∥∥∥∥∥∥</span>
-                <p>输入条码数值并点击生成</p>
+                <p>输入条码数值并选择尺寸预设</p>
               </div>
             )}
           </div>
