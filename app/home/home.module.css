@@ -156,15 +156,15 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-md);
+  gap: var(--space-xl);
+  margin-bottom: var(--space-lg);
   overflow: visible;
-  padding: 16px 4px;
+  padding: 20px 4px;
 }
 
 .standardsGroup {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   flex-shrink: 0;
   align-items: center;
   overflow: visible;
@@ -180,20 +180,20 @@
 }
 
 .standardCard {
-  padding: var(--space-md);
+  padding: var(--space-lg);
   background: var(--card);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 180px;
-  min-height: 190px;
+  width: 210px;
+  height: 210px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .standardCard:hover {
@@ -202,13 +202,13 @@
 
 /* Brand card — no hover inversion */
 .brandCard {
-  padding: var(--space-md);
+  padding: var(--space-lg);
   background: var(--card);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   text-align: center;
-  width: 180px;
-  min-height: 190px;
+  width: 210px;
+  height: 210px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -216,15 +216,19 @@
   justify-content: center;
   position: relative;
   overflow: visible;
+  box-sizing: border-box;
 }
 
 .cardIcon {
   margin-bottom: var(--space-sm);
   object-fit: contain;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
 }
 
 .cardCode {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--foreground);
   margin: var(--space-xs) 0 4px;
@@ -233,7 +237,7 @@
 }
 
 .cardName {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 330;
   color: var(--foreground);
   margin: 0;
@@ -535,7 +539,13 @@
 
   .standardCard {
     width: 150px;
-    min-height: 170px;
+    height: 170px;
+    padding: var(--space-sm);
+  }
+
+  .brandCard {
+    width: 150px;
+    height: 170px;
     padding: var(--space-sm);
   }
 

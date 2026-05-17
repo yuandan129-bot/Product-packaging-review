@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { HoverText } from '../../components/HoverText'
 import { ShinyText } from '../../components/ShinyText'
 import DocumentModal from '../../components/DocumentModal'
+import TiltedCard from '../../components/TiltedCard'
 import styles from './home.module.css'
 
 const STANDARDS = [
@@ -30,6 +31,8 @@ export default function Home() {
    */
   // 文档弹窗状态
   const [modalStandard, setModalStandard] = useState<{ code: string; name: string; docPath: string | null } | null>(null)
+
+  const [isHoveringUpload, setIsHoveringUpload] = useState(false)
 
   const [brandFiles, setBrandFiles] = useState<File[]>([])
   const [brandPreviewUrls, setBrandPreviewUrls] = useState<string[]>([])
@@ -189,13 +192,14 @@ export default function Home() {
             {/* Group 1: National & Industry Standards */}
             <div className={styles.standardsGroup}>
               {STANDARDS.map((standard, idx) => (
-                <motion.div
+                <TiltedCard
                   key={idx}
                   className={styles.standardCard}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.10, boxShadow: '0 8px 40px rgba(0,0,0,0.08)', transition: { duration: 0.15, ease: 'easeOut' } }}
                   transition={{ duration: 0.5, delay: 0.1 + idx * 0.05 }}
+                  rotateAmplitude={12}
+                  scaleOnHover={1.08}
                   onClick={() => handleStandardClick(standard)}
                 >
                   <Image
@@ -207,7 +211,7 @@ export default function Home() {
                   />
                   <p className={styles.cardCode}>{standard.code}</p>
                   <p className={styles.cardName}>{standard.name}</p>
-                </motion.div>
+                </TiltedCard>
               ))}
             </div>
 
@@ -223,11 +227,13 @@ export default function Home() {
                 - 仅显示一张「品牌规范（已上传）」卡片
               */}
               {brandPreviewUrls.length > 0 && (
-                <motion.div
+                <TiltedCard
                   className={styles.brandCard}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 + 4 * 0.05 }}
+                  rotateAmplitude={12}
+                  scaleOnHover={1.05}
                 >
                   {/* 堆叠缩略图 */}
                   <div className={styles.stackedThumbnails}>
@@ -267,7 +273,7 @@ export default function Home() {
                   <p className={styles.cardName}>
                     （{brandPreviewUrls.length} 个文件已上传）
                   </p>
-                </motion.div>
+                </TiltedCard>
               )}
 
               {/*
@@ -275,18 +281,19 @@ export default function Home() {
                 - accept 支持图片、Markdown、JSON、Office 文档(doc/xls/ppt)
                 - 上传后 brandPreviewUrl 有值，上方品牌规范卡片自动出现
               */}
-              <motion.div
+              <TiltedCard
                 className={styles.standardCard}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.10, boxShadow: '0 8px 40px rgba(0,0,0,0.08)', transition: { duration: 0.15, ease: 'easeOut' } }}
                 transition={{ duration: 0.5, delay: 0.1 + 5 * 0.05 }}
+                rotateAmplitude={12}
+                scaleOnHover={1.08}
                 onClick={() => brandInputRef.current?.click()}
               >
                 <div className={styles.cardUploadPlaceholder}>+</div>
                 <p className={styles.cardCode}>点击上传品牌规范</p>
                 <p className={styles.cardUploadHint}>(支持 jpg / png / md / doc / xls / ppt)</p>
-              </motion.div>
+              </TiltedCard>
 
               {/*
                 隐藏的文件输入 — 仅用于品牌规范上传
@@ -305,11 +312,14 @@ export default function Home() {
         </div>
 
         {/* Right Column - Upload Section — 整块热区可点击 */}
-        <div
+        <motion.div
           className={styles.rightColumn}
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 300, damping: 24 }}
+          onHoverStart={() => setIsHoveringUpload(true)}
+          onHoverEnd={() => setIsHoveringUpload(false)}
           onClick={() => imageInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
+          style={{ cursor: "pointer" }}
         >
           {/* Upload Text Area — 逐字弹跳动效 */}
           <div className={styles.uploadTextArea}>
@@ -339,8 +349,16 @@ export default function Home() {
             <motion.div
               className={styles.uploadCircle}
               initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                x: isHoveringUpload ? 10 : 0,
+              }}
+              transition={{
+                opacity: { duration: 0.5, delay: 0.3 },
+                scale: { duration: 0.5, delay: 0.3 },
+                x: { type: "spring", stiffness: 200, damping: 18 },
+              }}
             >
               <input
                 ref={imageInputRef}
@@ -355,7 +373,7 @@ export default function Home() {
               </label>
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Divider */}
