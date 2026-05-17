@@ -1,30 +1,40 @@
-.container {
+/* ── 双栏外壳 ── */
+.shell {
   min-height: 100vh;
   background: var(--background);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── 左侧主内容 ── */
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-xl);
+  width: 100%;
 }
 
 .content {
   width: 100%;
-  max-width: 640px;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
 /* ============================================
-   Stepper — 流程步骤指示器
+   Stepper
    ============================================ */
-
 .stepper {
   display: flex;
   align-items: flex-start;
   justify-content: center;
   gap: 0;
-  padding: var(--space-lg) var(--space-sm);
+  padding: var(--space-md) var(--space-sm);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -39,10 +49,9 @@
   min-width: 0;
 }
 
-/* 连接线 */
 .stepLine {
   position: absolute;
-  top: 18px;              /* 对齐圆心 */
+  top: 18px;
   right: 50%;
   width: 100%;
   height: 2px;
@@ -51,11 +60,8 @@
   transition: background 0.5s ease;
 }
 
-.stepLineDone {
-  background: var(--foreground);
-}
+.stepLineDone { background: var(--foreground); }
 
-/* 节点圆圈 */
 .stepNode {
   width: 36px;
   height: 36px;
@@ -70,48 +76,36 @@
   transition: all 0.35s ease;
 }
 
-/* pending — 置灰 */
 .stepNode_pending {
   border-color: var(--border);
   background: var(--muted);
 }
 
-/* active — 高亮 */
 .stepNode_active {
   border-color: var(--foreground);
   background: var(--foreground);
   color: var(--primary-foreground);
 }
 
-/* completed — 深色填充 */
 .stepNode_completed {
   border-color: var(--foreground);
   background: var(--foreground);
   color: var(--primary-foreground);
 }
 
-/* 脉冲动效 — active 状态 */
 .stepNodePulse {
   animation: stepPulse 1.6s ease-in-out infinite;
 }
 
 @keyframes stepPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.25);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.25); }
+  50% { box-shadow: 0 0 0 10px rgba(0,0,0,0); }
 }
 
-.stepCheck {
-  width: 16px;
-  height: 16px;
-}
+.stepCheck { width: 16px; height: 16px; }
 
 .stepDot {
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--primary-foreground);
   animation: dotBlink 1s ease-in-out infinite;
@@ -129,7 +123,6 @@
   opacity: 0.4;
 }
 
-/* 步骤文字 */
 .stepText {
   display: flex;
   flex-direction: column;
@@ -147,15 +140,8 @@
   transition: color 0.35s ease;
 }
 
-.stepLabelPending {
-  color: var(--border);
-  font-weight: 340;
-}
-
-.stepLabelActive {
-  color: var(--foreground);
-  font-weight: 540;
-}
+.stepLabelPending { color: var(--border); font-weight: 340; }
+.stepLabelActive { color: var(--foreground); font-weight: 540; }
 
 .stepDesc {
   font-size: 12px;
@@ -165,36 +151,20 @@
   transition: color 0.35s ease;
 }
 
-/* 当步骤完成或激活时，描述文字可见 */
-.stepNode_active ~ .stepText .stepDesc,
-.stepNode_completed ~ .stepText .stepDesc {
-  color: var(--muted-foreground);
-}
-
-/* 修复：不同状态下描述的颜色 */
-.stepWrapper:has(.stepNode_active) .stepDesc {
-  color: var(--muted-foreground);
-}
-
-.stepWrapper:has(.stepNode_completed) .stepDesc {
-  color: var(--muted-foreground);
-}
-
-.stepWrapper:has(.stepNode_pending) .stepDesc {
-  color: var(--border);
-}
+.stepWrapper:has(.stepNode_active) .stepDesc { color: var(--muted-foreground); }
+.stepWrapper:has(.stepNode_completed) .stepDesc { color: var(--muted-foreground); }
+.stepWrapper:has(.stepNode_pending) .stepDesc { color: var(--border); }
 
 /* ============================================
    Image Preview
    ============================================ */
-
 .imagePreview {
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-md);
   background: var(--card);
   border: 1px solid var(--border);
-  max-height: 360px;
+  max-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -203,7 +173,7 @@
 .imagePreview img {
   width: 100%;
   height: auto;
-  max-height: 360px;
+  max-height: 300px;
   object-fit: contain;
   display: block;
 }
@@ -211,7 +181,6 @@
 /* ============================================
    Physical Dimensions
    ============================================ */
-
 .dimensionsSection {
   display: flex;
   flex-direction: column;
@@ -234,10 +203,7 @@
   transition: border-color 0.2s ease;
 }
 
-.dimToggle:hover {
-  border-color: var(--foreground);
-  border-style: solid;
-}
+.dimToggle:hover { border-color: var(--foreground); border-style: solid; }
 
 .dimToggleHint {
   font-size: 13px;
@@ -287,9 +253,7 @@
   width: 100%;
 }
 
-.dimInput .input:focus {
-  border-color: var(--foreground);
-}
+.dimInput .input:focus { border-color: var(--foreground); }
 
 .dimHint {
   font-size: 13px;
@@ -303,7 +267,6 @@
 /* ============================================
    Actions
    ============================================ */
-
 .actions {
   display: flex;
   gap: var(--space-sm);
@@ -328,15 +291,11 @@
 }
 
 .analyzeButton:hover:not(:disabled) {
-  background: var(--foreground);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.analyzeButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
+.analyzeButton:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .btnLoading {
   display: flex;
@@ -348,15 +307,13 @@
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255,255,255,0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .backButton {
   padding: 10px 24px;
@@ -381,44 +338,162 @@
   box-shadow: var(--shadow-md);
 }
 
-.backButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.backButton:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ============================================
+   Console — 右侧实时后台面板
+   ============================================ */
+.console {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 340px;
+  background: #0d0d0d;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Menlo', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 10;
 }
+
+.consoleLive {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 渐隐遮罩 */
+.consoleFadeTop,
+.consoleFadeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.consoleFadeTop {
+  top: 0;
+  background: linear-gradient(to bottom, #0d0d0d 0%, transparent 100%);
+}
+
+.consoleFadeBottom {
+  bottom: 0;
+  background: linear-gradient(to top, #0d0d0d 0%, transparent 100%);
+}
+
+/* 日志内容区 */
+.consoleBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 80px 20px 80px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: none;
+}
+
+.consoleBody::-webkit-scrollbar { display: none; }
+
+/* 空闲状态 */
+.consoleIdle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: rgba(255,255,255,0.25);
+  font-size: 12px;
+}
+
+.consoleCursor {
+  animation: cursorBlink 1s step-end infinite;
+  color: rgba(255,255,255,0.5);
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 日志行 */
+.consoleLine {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 1px 8px;
+  border-radius: 3px;
+  animation: logSlideIn 0.3s ease-out;
+  white-space: nowrap;
+}
+
+@keyframes logSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.consoleTime {
+  color: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+  font-size: 11px;
+  min-width: 65px;
+}
+
+.consoleTag {
+  flex-shrink: 0;
+  width: 52px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 540;
+  opacity: 0.5;
+}
+
+.consoleText {
+  color: rgba(255,255,255,0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 标签颜色 */
+.consoleTag_system .consoleTag { color: #888; }
+.consoleTag_vision .consoleTag { color: #7eb8da; }
+.consoleTag_network .consoleTag { color: #d4a574; }
+.consoleTag_analyze .consoleTag { color: #a78bfa; }
+.consoleTag_success .consoleTag { color: #6ee7b7; }
+.consoleTag_error .consoleTag { color: #f87171; }
+
+.consoleTag_success .consoleText { color: rgba(255,255,255,0.7); }
+.consoleTag_error .consoleText { color: #f87171; }
+.consoleTag_system .consoleText { color: rgba(255,255,255,0.35); }
 
 /* ============================================
    Responsive
    ============================================ */
+@media (max-width: 1100px) {
+  .console { display: none; }
+  .main { transform: none !important; }
+}
 
 @media (max-width: 768px) {
+  .main { padding: var(--space-lg); }
+
   .stepper {
     padding: var(--space-sm);
     border-radius: var(--radius-md);
   }
 
-  .stepLabel {
-    font-size: 12px;
-  }
+  .stepLabel { font-size: 12px; }
+  .stepDesc { display: none; }
+  .stepNode { width: 28px; height: 28px; }
+  .stepLine { top: 14px; }
 
-  .stepDesc {
-    display: none;
-  }
-
-  .stepNode {
-    width: 28px;
-    height: 28px;
-  }
-
-  .stepLine {
-    top: 14px;
-  }
-
-  .actions {
-    flex-direction: column;
-  }
-
-  .analyzeButton,
-  .backButton {
-    width: 100%;
-  }
+  .actions { flex-direction: column; }
+  .analyzeButton, .backButton { width: 100%; }
 }
