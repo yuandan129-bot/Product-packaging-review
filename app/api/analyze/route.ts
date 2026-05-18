@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
+import path from "path"
 
-// Vercel Hobby 超时 10s，必须在此期限内完成
-export const maxDuration = 10
+// 本地开发 / 生产部署，审核分析需较长时间
+export const maxDuration = 60
 
 /* ── Qwen-VL 视觉提取 ── */
 const VISION_PROMPT = `你是一个包装标签文字提取专家。请仔细查看这张包装设计图，提取所有文字信息。
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest) {
               max_tokens: 4096,
               temperature: 0.1,
             }),
-            signal: AbortSignal.timeout(5000),
+            signal: AbortSignal.timeout(30000),
           }
         )
 
@@ -116,7 +117,8 @@ export async function POST(request: NextRequest) {
     if (!extractedText) {
       try {
         const { createWorker } = await import("tesseract.js")
-        const worker = await createWorker("chi_sim+eng")
+        const workerPath = path.join(process.cwd(), "node_modules", "tesseract.js", "src", "worker-script", "node", "index.js")
+        const worker = await createWorker("chi_sim+eng", undefined, { workerPath })
         const { data } = await worker.recognize(buffer)
         extractedText = data.text || ""
         await worker.terminate()
@@ -180,7 +182,7 @@ export async function POST(request: NextRequest) {
             max_tokens: 4096,
             temperature: 0.1,
           }),
-          signal: AbortSignal.timeout(5000),
+          signal: AbortSignal.timeout(30000),
         })
 
         if (resp.ok) {
