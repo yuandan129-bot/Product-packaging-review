@@ -1,0 +1,293 @@
+.receipt {
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #fefefc 0%, #faf8f4 100%);
+  border: 1px solid #e8e5e0;
+  border-radius: 2px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  font-family: "MiSans", "Inter", system-ui, sans-serif;
+  color: #1a1a1a;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  padding: 24px 20px 14px;
+  border-bottom: 2px solid #1a1a1a;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 540;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.meta {
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 0.3px;
+}
+
+/* ── Dividers ── */
+.divider {
+  padding: 3px 0;
+  text-align: center;
+  border-top: 2px dashed #d4d0c8;
+  border-bottom: 2px dashed #d4d0c8;
+  margin: 4px 0;
+}
+
+/* ── Section ── */
+.section {
+  padding: 12px 16px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 540;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  color: #1a1a1a;
+}
+
+/* ── Summary Table ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table td {
+  padding: 3px 0;
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.label {
+  font-size: 12px;
+  color: #888;
+  width: 80px;
+  white-space: nowrap;
+}
+
+/* ── Status Badges ── */
+.badgeOK {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 540;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: #1ea64a;
+  color: #fff;
+  margin-left: 6px;
+}
+
+.badgeNG {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 540;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: #dc2626;
+  color: #fff;
+  margin-left: 6px;
+}
+
+/* ── Issue Items ── */
+.item {
+  padding: 8px 0 8px 12px;
+  margin-bottom: 2px;
+  position: relative;
+  border-left: 3px solid #1a1a1a;
+}
+
+.itemError {
+  border-left-color: #dc2626;
+}
+
+.itemWarn {
+  border-left-color: #f59e0b;
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.itemCat {
+  font-size: 13px;
+  font-weight: 480;
+  color: #1a1a1a;
+}
+
+.itemMsg {
+  margin: 3px 0;
+  font-size: 14px;
+  font-weight: 330;
+  line-height: 1.5;
+}
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+}
+
+.badgeError {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.badgeWarn {
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
+  background: transparent;
+}
+
+/* ── Position ── */
+.itemPos {
+  font-size: 11px;
+  color: #888;
+  margin: 2px 0 0;
+}
+
+/* ── Reference ── */
+.itemRef {
+  margin: 3px 0 0;
+  font-size: 12px;
+}
+
+.refLink {
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.refLink:hover {
+  opacity: 0.65;
+}
+
+.refPlain {
+  font-size: 12px;
+  color: #888;
+}
+
+.refPreview {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  background: #f5f3f0;
+  border: 1px solid #e0dcd5;
+  border-radius: 2px;
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* ── Typo ── */
+.typoWrong {
+  text-decoration: line-through;
+  color: #dc2626;
+}
+
+.typoCorrect {
+  color: #1ea64a;
+  font-weight: 540;
+}
+
+/* ── Checklist ── */
+.checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.checkItem {
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.checkOK {
+  color: #1ea64a;
+  font-weight: 540;
+}
+
+.checkFail {
+  color: #dc2626;
+  font-weight: 540;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 16px 20px;
+  border-top: 2px solid #1a1a1a;
+}
+
+.footerSummary {
+  font-size: 13px;
+  font-weight: 330;
+  margin: 0 0 12px;
+}
+
+.footerActions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 480;
+  border-radius: 50px;
+  border: 1px solid #1a1a1a;
+  background: transparent;
+  color: #1a1a1a;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.btnPrimary {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  opacity: 0.85;
+}
+
+.footerThanks {
+  font-size: 11px;
+  color: #aaa;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}

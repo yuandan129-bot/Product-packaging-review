@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { motion } from "motion/react"
 import Image from "next/image"
+import { getStats, getStatsSync, incrementBarcode } from "../../lib/usageStats"
 import styles from "./barcode.module.css"
 
 // EAN-13 校验码计算 (ISO/IEC 7064)
@@ -113,6 +114,7 @@ export default function BarcodePage() {
   // 生成状态
   const [generated, setGenerated] = useState(false)
   const [fontsReady, setFontsReady] = useState(false)
+  const [barcodeCount, setBarcodeCount] = useState(0)
 
   // 确保网页字体加载完成后 canvas 才能正确渲染
   useEffect(() => {
@@ -121,6 +123,8 @@ export default function BarcodePage() {
     } else {
       setFontsReady(true)
     }
+    setBarcodeCount(getStatsSync().barcodeCount)
+    getStats().then((s) => setBarcodeCount(s.barcodeCount))
   }, [])
 
   // 完整 EAN-13（自动补校验码）
@@ -201,6 +205,7 @@ export default function BarcodePage() {
         lineColor: "#000000",
       })
       setGenerated(true)
+      incrementBarcode().then((newCount) => setBarcodeCount(newCount))
     } catch (err) {
       console.error("条码生成失败:", err)
       alert(`条码生成失败：${err instanceof Error ? err.message : "请检查输入值是否符合格式要求"}`)
@@ -574,6 +579,12 @@ export default function BarcodePage() {
           </div>
         </div>
       </div>
+
+      {barcodeCount > 0 && (
+        <div className={styles.usageCounter}>
+          已为您生成过 {barcodeCount} 张条码
+        </div>
+      )}
     </main>
   )
 }

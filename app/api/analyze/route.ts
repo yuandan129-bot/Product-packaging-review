@@ -26,9 +26,9 @@ const COMPLIANCE_PROMPT = `你是食品包装标签合规审核专家，依据 G
   "category": "食品分类",
   "standard": "执行标准号",
   "standardStatus": "current/expired/error",
-  "criticalErrors": [{ "severity": "error", "category": "类别", "message": "问题及条款" }],
-  "warnings": [{ "severity": "warning", "category": "类别", "message": "风险描述" }],
-  "typoIssues": [{ "severity": "error/warning", "wrong": "错字", "correct": "正字", "message": "说明" }],
+  "criticalErrors": [{ "severity": "error", "category": "类别", "message": "问题及条款", "position": "问题在包装上的位置", "bbox": [x1,y1,x2,y2], "referenceDoc": "品牌规范文件名或null" }],
+  "warnings": [{ "severity": "warning", "category": "类别", "message": "风险描述", "position": "位置描述", "bbox": [x1,y1,x2,y2], "referenceDoc": "文件名或null" }],
+  "typoIssues": [{ "severity": "error/warning", "wrong": "错字", "correct": "正字", "message": "说明", "position": "位置描述", "bbox": [x1,y1,x2,y2] }],
   "checklist": { "品名": true, "配料表": true, "生产日期": true, "保质期": true, "致敏原标注": true, "营养成分表": true, "生产者信息": true, "执行标准号": true, "SC证号": true }
 }
 
@@ -39,7 +39,12 @@ const COMPLIANCE_PROMPT = `你是食品包装标签合规审核专家，依据 G
 4. 错别字（保质期→保盾期、脂肪→脂防、钠→纳、蛋白质→蛋白贡等）
 5. 配料表是否按添加量递减排列
 6. 执行标准号是否现行有效
-7. 如提供品牌规范，逐一核对包装上的企业名称、地址、SC证号、电话是否一致`
+7. 如提供品牌规范，逐一核对包装上的企业名称、地址、SC证号、电话是否一致
+
+每个问题（criticalErrors/warnings/typoIssues）都必须标注：
+- position：问题在包装上的具体位置（结合文字块编号和位置描述，如"块3，上部产品名称区域"）
+- bbox：如该问题对应某文字块的 bbox 坐标，直接引用，否则填 null
+- referenceDoc：如品牌规范中有对应正确信息，标注文件名，否则填 null`
 
 export async function POST(request: NextRequest) {
   try {
@@ -101,9 +106,9 @@ export async function POST(request: NextRequest) {
           const blocks = parsed.textBlocks || []
           imageDescription = parsed.imageDescription || ""
 
-          // 将结构化文字块拼接为纯文本，供 DeepSeek 分析
+          // 保留文字块（含 bbox）供 DeepSeek 精确定位问题
           extractedText = blocks
-            .map((b: any) => `[${b.category}｜${b.position}] ${b.content}`)
+            .map((b: any, i: number) => `[块${i}｜${b.category}｜${b.position}｜bbox:${JSON.stringify(b.bbox)}] ${b.content}`)
             .join("\n")
         } else {
           console.warn("Qwen-VL HTTP", resp.status)

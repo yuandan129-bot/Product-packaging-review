@@ -27,6 +27,48 @@
 }
 
 /* ============================================
+   Pipeline Selector
+   ============================================ */
+.pipelineSelector {
+  display: flex;
+  background: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.pipelineTab {
+  flex: 1;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  letter-spacing: -0.1px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.pipelineTab:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.pipelineTab:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pipelineTabActive {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ============================================
    Stepper
    ============================================ */
 .stepper {
@@ -474,11 +516,145 @@
 .consoleTag_system .consoleText { color: rgba(255,255,255,0.35); }
 
 /* ============================================
+   Split Layout — 报告双栏视图
+   ============================================ */
+.splitLayout {
+  display: flex;
+  gap: var(--space-xl);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.splitLeft {
+  flex: 0 0 35%;
+  min-width: 280px;
+}
+
+.splitSticky {
+  position: sticky;
+  top: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.splitImagePreview {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+  max-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splitImagePreview img {
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+  display: block;
+}
+
+.splitRight {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-md);
+}
+
+.splitActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.splitBtn {
+  flex: 1;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.splitBtn:hover {
+  opacity: 0.85;
+}
+
+.splitBtnOutline {
+  flex: 1;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.splitBtnOutline:hover {
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  border-color: var(--foreground);
+}
+
+.splitCounter {
+  font-size: 12px;
+  font-weight: 330;
+  color: var(--border);
+  text-align: right;
+  margin: 0;
+}
+
+/* ============================================
    Responsive
    ============================================ */
 @media (max-width: 1100px) {
   .console { display: none; }
   .main { transform: none !important; }
+}
+
+@media (max-width: 900px) {
+  .splitLayout {
+    flex-direction: column;
+    padding: var(--space-lg);
+  }
+
+  .splitLeft {
+    flex: none;
+    min-width: 0;
+  }
+
+  .splitSticky {
+    position: static;
+  }
+
+  .splitImagePreview {
+    max-height: 240px;
+  }
+
+  .splitImagePreview img {
+    max-height: 240px;
+  }
+
+  .splitRight {
+    padding-top: 0;
+  }
 }
 
 @media (max-width: 768px) {

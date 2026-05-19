@@ -549,3 +549,15 @@
     flex-direction: column;
   }
 }
+
+/* ── 使用统计 ── */
+.usageCounter {
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-xl);
+  font-size: 12px;
+  font-weight: 330;
+  color: var(--border);
+  pointer-events: none;
+  z-index: 0;
+}

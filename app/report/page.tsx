@@ -3,32 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
+import type { ComplianceReport } from '../../types/compliance'
 import styles from './report.module.css'
-
-interface ComplianceIssue {
-  severity: 'error' | 'warning'
-  category: string
-  message: string
-}
-
-interface TypoIssue {
-  severity: 'error' | 'warning'
-  category: string
-  wrong: string
-  correct: string
-  message: string
-}
-
-interface ComplianceReport {
-  productName: string
-  category: string
-  standard: string
-  standardStatus: 'current' | 'expired' | 'error'
-  criticalErrors: ComplianceIssue[]
-  warnings: ComplianceIssue[]
-  typoIssues: TypoIssue[]
-  checklist: { [key: string]: boolean }
-}
 
 export default function ReportPage() {
   const router = useRouter()
@@ -93,6 +69,18 @@ export default function ReportPage() {
   const handleNewReview = () => {
     sessionStorage.removeItem('complianceReport')
     router.push('/home')
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleBackToAnalyze = () => {
+    if (sessionStorage.getItem('uploadedImage')) {
+      router.push('/analyze')
+    } else {
+      router.push('/home')
+    }
   }
 
   return (
@@ -250,8 +238,11 @@ export default function ReportPage() {
           <button className={`${styles.downloadBtn} ${styles.interactive}`} onClick={handleDownload}>
             📥 下载报告
           </button>
-          <button className={`${styles.shareBtn} ${styles.interactive}`}>
-            🔗 分享报告
+          <button className={`${styles.shareBtn} ${styles.interactive}`} onClick={handlePrint}>
+            🖨️ 打印报告
+          </button>
+          <button className={`${styles.newBtn} ${styles.interactive}`} onClick={handleBackToAnalyze}>
+            ◀ 返回分析页
           </button>
           <button className={`${styles.newBtn} ${styles.interactive}`} onClick={handleNewReview}>
             ➕ 新建审核
