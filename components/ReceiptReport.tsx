@@ -53,6 +53,14 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
   const checklistItems = Object.entries(report.checklist || {})
   const failedItems = checklistItems.filter(([, v]) => !v).map(([k]) => k)
 
+  // 构建检测项 → 建议映射，用于总览表直接显示修改建议
+  const suggestionMap: Record<string, string> = {}
+  for (const e of [...(report.criticalErrors || []), ...(report.warnings || [])]) {
+    if (e.suggestion && e.category) {
+      if (!suggestionMap[e.category]) suggestionMap[e.category] = e.suggestion
+    }
+  }
+
   const handleSaveImage = async () => {
     if (!reportRef.current) return
     try {
@@ -114,22 +122,25 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
           <thead>
             <tr>
               <th>检测项</th>
-              <th>结果</th>
-              <th>说明</th>
+              <th className={styles.thResult}>结果</th>
+              <th>修改建议</th>
             </tr>
           </thead>
           <tbody>
-            {checklistItems.map(([item, passed]) => (
-              <tr key={item} className={passed ? styles.rowOK : styles.rowFail}>
-                <td>{item}</td>
-                <td className={passed ? styles.cellOK : styles.cellFail}>
-                  {passed ? '✓' : '✗'}
-                </td>
-                <td className={styles.cellNote}>
-                  {passed ? '—' : failedItems.includes(item) ? '存在问题' : '—'}
-                </td>
-              </tr>
-            ))}
+            {checklistItems.map(([item, passed]) => {
+              const sug = suggestionMap[item]
+              return (
+                <tr key={item} className={passed ? styles.rowOK : styles.rowFail}>
+                  <td>{item}</td>
+                  <td className={passed ? styles.cellOK : styles.cellFail}>
+                    {passed ? '✓' : '✗'}
+                  </td>
+                  <td className={styles.cellSug}>
+                    {!passed && sug ? sug : passed ? '—' : '待补充'}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
         {totalIssues > 0 && (
