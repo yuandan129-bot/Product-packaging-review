@@ -109,9 +109,8 @@ export async function POST(request: NextRequest) {
               ],
             },
           ],
-          max_tokens: 3000,
-          temperature: 0.1,
-          chat_template_kwargs: { enable_thinking: false },
+          max_tokens: 6000,
+          temperature: 1,
         }),
         signal: controller.signal,
       })
