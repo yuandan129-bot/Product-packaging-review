@@ -50,12 +50,12 @@ interface Preset {
   ratio: string
   w: number
   h: number
-  icon: "square" | "portrait" | "landscape" | "wide"
+  icon: "square" | "landscape" | "wide"
 }
 
 const PRESETS: Preset[] = [
   { label: "1:1", ratio: "1:1", w: 250, h: 250, icon: "square" },
-  { label: "3:4", ratio: "3:4", w: 300, h: 400, icon: "portrait" },
+  { label: "4:3", ratio: "4:3", w: 400, h: 300, icon: "landscape" },
   { label: "2:1", ratio: "2:1", w: 400, h: 200, icon: "landscape" },
   { label: "16:9", ratio: "16:9", w: 400, h: 225, icon: "wide" },
   { label: "3:1", ratio: "3:1", w: 450, h: 150, icon: "wide" },
@@ -71,9 +71,6 @@ function RatioIcon({ icon }: { icon: Preset["icon"] }) {
       <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
         {icon === "square" && (
           <rect x="4" y="2" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
-        )}
-        {icon === "portrait" && (
-          <rect x="7" y="1" width="14" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
         )}
         {icon === "landscape" && (
           <rect x="2" y="4" width="24" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
