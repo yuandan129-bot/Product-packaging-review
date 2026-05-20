@@ -50,7 +50,7 @@ interface Preset {
   ratio: string
   w: number
   h: number
-  icon: "square" | "portrait" | "landscape" | "wide" | "tall"
+  icon: "square" | "portrait" | "landscape" | "wide"
 }
 
 const PRESETS: Preset[] = [
@@ -59,7 +59,7 @@ const PRESETS: Preset[] = [
   { label: "2:1", ratio: "2:1", w: 400, h: 200, icon: "landscape" },
   { label: "16:9", ratio: "16:9", w: 400, h: 225, icon: "wide" },
   { label: "3:1", ratio: "3:1", w: 450, h: 150, icon: "wide" },
-  { label: "1:2", ratio: "1:2", w: 200, h: 400, icon: "tall" },
+  { label: "4:1", ratio: "4:1", w: 480, h: 120, icon: "wide" },
 ]
 
 const UNITS = ["mm", "px"]
@@ -80,9 +80,6 @@ function RatioIcon({ icon }: { icon: Preset["icon"] }) {
         )}
         {icon === "wide" && (
           <rect x="1" y="5" width="26" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" />
-        )}
-        {icon === "tall" && (
-          <rect x="9" y="0" width="10" height="20" rx="2" stroke="currentColor" strokeWidth="1.5" />
         )}
       </svg>
     </span>
@@ -108,7 +105,7 @@ export default function BarcodePage() {
 
   // 文字
   const [showText, setShowText] = useState(true)
-  const [fontSize, setFontSize] = useState(20)
+  const [fontSize, setFontSize] = useState(40)
   const [fontFamily, setFontFamily] = useState("MiSans")
 
   // 生成状态
@@ -371,7 +368,17 @@ export default function BarcodePage() {
 
           {/* 1. 条码数值输入 */}
           <div className={styles.field}>
-            <label className={styles.label}>条码数值</label>
+            <label className={styles.label}>
+              条码数值
+              {(() => {
+                const lenMap: Record<string, number> = { ean13: 13, ean8: 8, upc: 12, itf14: 14 }
+                const expected = lenMap[format]
+                if (expected) {
+                  return <span className={styles.digitCount}>{codeValue.length}/{expected}</span>
+                }
+                return null
+              })()}
+            </label>
             <div className={styles.inputRow}>
               <input
                 type="text"
@@ -386,14 +393,6 @@ export default function BarcodePage() {
                   校验码：<strong>{checkDigit}</strong>
                 </span>
               )}
-              {(() => {
-                const lenMap: Record<string, number> = { ean13: 13, ean8: 8, upc: 12, itf14: 14 }
-                const expected = lenMap[format]
-                if (expected && codeValue.length >= expected) {
-                  return <span key="check" className={styles.checkmark}>✓</span>
-                }
-                return null
-              })()}
             </div>
             {checkDigit !== null && (
               <p className={styles.hint}>
@@ -576,15 +575,14 @@ export default function BarcodePage() {
                 <p>输入条码数值并选择尺寸预设</p>
               </div>
             )}
+            {barcodeCount > 0 && (
+              <div className={styles.usageCounter}>
+                已为您生成过 {barcodeCount} 张条码
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {barcodeCount > 0 && (
-        <div className={styles.usageCounter}>
-          已为您生成过 {barcodeCount} 张条码
-        </div>
-      )}
     </main>
   )
 }
