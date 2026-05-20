@@ -588,6 +588,7 @@
   min-width: 0;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   overflow-y: auto;
   height: calc(100vh - 2 * var(--space-xl));
   padding-bottom: var(--space-xl);
@@ -638,9 +639,9 @@
 
 .splitCounter {
   font-size: 12px;
-  font-weight: 330;
-  color: var(--border);
-  text-align: right;
+  font-weight: 340;
+  color: var(--muted-foreground);
+  text-align: center;
   margin: 0;
 }
 

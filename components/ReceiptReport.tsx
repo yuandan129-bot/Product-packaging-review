@@ -16,6 +16,8 @@ interface Props {
   onDownloadJSON?: () => void
 }
 
+const ITEMS_PER_PAGE = 4
+
 function getBrandFiles(): BrandFile[] {
   if (typeof window === 'undefined') return []
   try {
@@ -47,20 +49,77 @@ function RefLink({ docName }: { docName: string }) {
   )
 }
 
+type IssueItem = { kind: 'error'; data: typeof _dummyError } | { kind: 'warn'; data: typeof _dummyError } | { kind: 'typo'; data: { severity: string; wrong: string; correct: string; message?: string; position?: string; category: string } }
+
+const _dummyError = null as any
+
 export default function ReceiptReport({ report, modelName, onDownloadJSON }: Props) {
   const reportRef = useRef<HTMLDivElement>(null)
+  const [currentPage, setCurrentPage] = useState(0)
+
   const totalIssues = (report.criticalErrors?.length || 0) + (report.warnings?.length || 0) + (report.typoIssues?.length || 0)
   const checklistItems = Object.entries(report.checklist || {})
-  const failedItems = checklistItems.filter(([, v]) => !v).map(([k]) => k)
 
-  // 构建检测项 → 建议映射，用于总览表直接显示修改建议
+  // 构建检测项 → 建议映射
   const suggestionMap: Record<string, string> = {}
   for (const e of [...(report.criticalErrors || []), ...(report.warnings || [])]) {
-    if (e.suggestion && e.category) {
-      if (!suggestionMap[e.category]) suggestionMap[e.category] = e.suggestion
+    if (e.suggestion && e.category && !suggestionMap[e.category]) {
+      suggestionMap[e.category] = e.suggestion
     }
   }
 
+  // 把所有问题归并为一个数组
+  const allIssues: { kind: 'error' | 'warn' | 'typo'; idx: number; item: any }[] = []
+  ;(report.criticalErrors || []).forEach((e, i) => allIssues.push({ kind: 'error', idx: i, item: e }))
+  ;(report.warnings || []).forEach((w, i) => allIssues.push({ kind: 'warn', idx: i, item: w }))
+  ;(report.typoIssues || []).forEach((t, i) => allIssues.push({ kind: 'typo', idx: i, item: t }))
+
+  const totalPages = totalIssues > 0 ? Math.ceil(totalIssues / ITEMS_PER_PAGE) : 1
+  const startIdx = currentPage * ITEMS_PER_PAGE
+  const pageIssues = allIssues.slice(startIdx, startIdx + ITEMS_PER_PAGE)
+  const isLastPage = currentPage >= totalPages - 1
+
+  // ── 渲染单个问题卡片 ──
+  const renderIssue = (issue: typeof allIssues[0], globalIdx: number) => {
+    const { kind, item } = issue
+    if (kind === 'typo') {
+      return (
+        <div key={`typo-${issue.idx}`} className={styles.issueCard}>
+          <div className={styles.issueHeader}>
+            <span className={item.severity === 'error' ? styles.issueBadgeError : styles.issueBadgeWarn}>错别字</span>
+            <span className={styles.issueNum}>{globalIdx + 1}/{totalIssues}</span>
+            <span className={styles.issueCat}>{item.category}</span>
+          </div>
+          <p className={styles.issueMsg}>
+            <span className={styles.typoWrong}>{item.wrong}</span>{' → '}<span className={styles.typoCorrect}>{item.correct}</span>
+          </p>
+          {item.message && <p className={styles.issueMsg}>{item.message}</p>}
+          {item.position && <p className={styles.issueMeta}>📍 位置：{item.position}</p>}
+        </div>
+      )
+    }
+
+    return (
+      <div key={`${kind}-${issue.idx}`} className={styles.issueCard}>
+        <div className={styles.issueHeader}>
+          <span className={kind === 'error' ? styles.issueBadgeError : styles.issueBadgeWarn}>
+            {kind === 'error' ? '错误' : '预警'}
+          </span>
+          <span className={styles.issueNum}>{globalIdx + 1}/{totalIssues}</span>
+          <span className={styles.issueCat}>{item.category}</span>
+        </div>
+        <p className={styles.issueMsg}>{item.message}</p>
+        {item.position && <p className={styles.issueMeta}>📍 位置：{item.position}</p>}
+        {item.regulation && <p className={styles.issueMeta}>📋 依据：{item.regulation}</p>}
+        {item.suggestion && <p className={styles.issueSuggestion}>💡 建议：{item.suggestion}</p>}
+        {item.referenceDoc && (
+          <p className={styles.issueMeta}>📄 参考文档：<RefLink docName={item.referenceDoc} /></p>
+        )}
+      </div>
+    )
+  }
+
+  // ── 保存按钮 ──
   const handleSaveImage = async () => {
     if (!reportRef.current) return
     try {
@@ -77,9 +136,10 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
 
   const handlePrint = () => window.print()
 
-  return (
-    <div className={styles.reportWrapper} ref={reportRef}>
-      {/* ── 报告头部 ── */}
+  // ── Page 1: 头部 + 摘要 + 总览 + 问题详述（含第一页问题）──
+  const renderPageOne = () => (
+    <>
+      {/* 报告头部 */}
       <header className={styles.header}>
         <h2 className={styles.title}>包装合规检测报告</h2>
         <div className={styles.metaRow}>
@@ -88,7 +148,7 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
         </div>
       </header>
 
-      {/* ── 产品摘要 ── */}
+      {/* 产品摘要 */}
       <section className={styles.summary}>
         <div className={styles.summaryGrid}>
           <div className={styles.summaryItem}>
@@ -115,7 +175,7 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
 
       <div className={styles.divider} />
 
-      {/* ── 检测结果总览表 ── */}
+      {/* 检测结果总览表 */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>检测结果总览</h3>
         <table className={styles.checkTable}>
@@ -132,12 +192,8 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
               return (
                 <tr key={item} className={passed ? styles.rowOK : styles.rowFail}>
                   <td>{item}</td>
-                  <td className={passed ? styles.cellOK : styles.cellFail}>
-                    {passed ? '✓' : '✗'}
-                  </td>
-                  <td className={styles.cellSug}>
-                    {!passed && sug ? sug : passed ? '—' : '待补充'}
-                  </td>
+                  <td className={passed ? styles.cellOK : styles.cellFail}>{passed ? '✓' : '✗'}</td>
+                  <td className={styles.cellSug}>{!passed && sug ? sug : passed ? '—' : '待补充'}</td>
                 </tr>
               )
             })}
@@ -151,91 +207,83 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
         )}
       </section>
 
-      {/* ── 问题详述 ── */}
-      {totalIssues > 0 && (
+      {/* 第一页问题 */}
+      {pageIssues.length > 0 && (
         <>
           <div className={styles.divider} />
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>问题详述</h3>
-
-            {report.criticalErrors.map((e, i) => (
-              <div key={`err-${i}`} className={styles.issueCard}>
-                <div className={styles.issueHeader}>
-                  <span className={styles.issueBadgeError}>错误</span>
-                  <span className={styles.issueNum}>{i + 1}/{totalIssues}</span>
-                  <span className={styles.issueCat}>{e.category}</span>
-                </div>
-                <p className={styles.issueMsg}>{e.message}</p>
-                {e.position && <p className={styles.issueMeta}>📍 位置：{e.position}</p>}
-                {e.regulation && <p className={styles.issueMeta}>📋 依据：{e.regulation}</p>}
-                {e.suggestion && <p className={styles.issueSuggestion}>💡 建议：{e.suggestion}</p>}
-                {e.referenceDoc && (
-                  <p className={styles.issueMeta}>📄 参考文档：<RefLink docName={e.referenceDoc} /></p>
-                )}
-              </div>
-            ))}
-
-            {report.warnings.map((w, i) => (
-              <div key={`warn-${i}`} className={styles.issueCard}>
-                <div className={styles.issueHeader}>
-                  <span className={styles.issueBadgeWarn}>预警</span>
-                  <span className={styles.issueNum}>{report.criticalErrors.length + i + 1}/{totalIssues}</span>
-                  <span className={styles.issueCat}>{w.category}</span>
-                </div>
-                <p className={styles.issueMsg}>{w.message}</p>
-                {w.position && <p className={styles.issueMeta}>📍 位置：{w.position}</p>}
-                {w.regulation && <p className={styles.issueMeta}>📋 依据：{w.regulation}</p>}
-                {w.suggestion && <p className={styles.issueSuggestion}>💡 建议：{w.suggestion}</p>}
-                {w.referenceDoc && (
-                  <p className={styles.issueMeta}>📄 参考文档：<RefLink docName={w.referenceDoc} /></p>
-                )}
-              </div>
-            ))}
-
-            {report.typoIssues.map((t, i) => (
-              <div key={`typo-${i}`} className={styles.issueCard}>
-                <div className={styles.issueHeader}>
-                  <span className={t.severity === 'error' ? styles.issueBadgeError : styles.issueBadgeWarn}>
-                    错别字
-                  </span>
-                  <span className={styles.issueNum}>{report.criticalErrors.length + report.warnings.length + i + 1}/{totalIssues}</span>
-                  <span className={styles.issueCat}>{t.category}</span>
-                </div>
-                <p className={styles.issueMsg}>
-                  <span className={styles.typoWrong}>{t.wrong}</span>
-                  {' → '}
-                  <span className={styles.typoCorrect}>{t.correct}</span>
-                </p>
-                {t.message && <p className={styles.issueMsg}>{t.message}</p>}
-                {t.position && <p className={styles.issueMeta}>📍 位置：{t.position}</p>}
-              </div>
-            ))}
+            {pageIssues.map((issue, i) => renderIssue(issue, startIdx + i))}
           </section>
         </>
       )}
+    </>
+  )
 
+  // ── 后续页：仅问题详述 ──
+  const renderContinuationPage = () => (
+    <>
+      <header className={styles.header}>
+        <h2 className={styles.title}>包装合规检测报告（续）</h2>
+        <div className={styles.metaRow}>
+          <span>第 {currentPage + 1} 页</span>
+        </div>
+      </header>
       <div className={styles.divider} />
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>问题详述（续）</h3>
+        {pageIssues.map((issue, i) => renderIssue(issue, startIdx + i))}
+      </section>
+    </>
+  )
 
-      {/* ── 操作按钮 ── */}
+  // ── 最后一页底部：操作 + footer ──
+  const renderFooter = () => (
+    <>
+      {totalIssues > 0 && <div className={styles.divider} />}
       <section className={styles.actions}>
         <button className={styles.btnPrimary} onClick={handlePrint}>保存为 PDF</button>
         <button className={styles.btn} onClick={handleSaveImage}>保存为图片</button>
-        {onDownloadJSON && (
-          <button className={styles.btn} onClick={onDownloadJSON}>保存 JSON</button>
-        )}
+        {onDownloadJSON && <button className={styles.btn} onClick={onDownloadJSON}>保存 JSON</button>}
       </section>
-
-      {/* ── 底部 ── */}
       <footer className={styles.footer}>
         <div className={styles.footerBrand}>
           <img src="/avatar.png" alt="" className={styles.footerAvatar} />
           <span className={styles.footerName}>元旦为你检测</span>
         </div>
-        <p className={styles.footerMeta}>
-          此检测基于 {modelName || 'Moonshot Vision'} 模型
-        </p>
+        <p className={styles.footerMeta}>此检测基于 {modelName || 'Moonshot Vision'} 模型</p>
         <p className={styles.footerDisclaimer}>内容由 AI 生成，仅供参考</p>
       </footer>
+    </>
+  )
+
+  return (
+    <div className={styles.reportWrapper} ref={reportRef}>
+      {currentPage === 0 ? renderPageOne() : renderContinuationPage()}
+
+      {/* 分页控件 */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            disabled={currentPage === 0}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            ← 上一页
+          </button>
+          <span className={styles.pageInfo}>{currentPage + 1} / {totalPages}</span>
+          <button
+            className={styles.pageBtn}
+            disabled={currentPage >= totalPages - 1}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            下一页 →
+          </button>
+        </div>
+      )}
+
+      {/* 最后一页显示 footer */}
+      {isLastPage && renderFooter()}
     </div>
   )
 }
