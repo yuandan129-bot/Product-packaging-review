@@ -433,9 +433,16 @@
   background: var(--muted);
 }
 
+.previewWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .previewCard {
-  width: 480px;
-  height: 440px;
+  width: 600px;
+  height: 520px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -464,7 +471,7 @@
 
 .downloadRow {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: var(--space-sm);
 }
 
@@ -551,7 +558,14 @@
   }
 
   .previewCard {
+    width: 100%;
+    height: auto;
+    min-height: 320px;
     padding: var(--space-lg);
+  }
+
+  .downloadRow {
+    flex-direction: column;
   }
 
   .sizeRow,
@@ -562,22 +576,20 @@
 
 /* ── 使用统计 ── */
 .badgeAuth {
-  position: absolute;
-  top: var(--space-md);
-  left: var(--space-md);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 330;
   color: rgba(0,0,0,0.35);
   letter-spacing: 0.3px;
   font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  margin-bottom: var(--space-xs);
+  align-self: flex-start;
 }
 
 .usageCounter {
-  position: absolute;
-  bottom: var(--space-md);
-  right: var(--space-lg);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 330;
   color: rgba(0,0,0,0.7);
   pointer-events: none;
+  margin-top: var(--space-xs);
+  align-self: flex-end;
 }

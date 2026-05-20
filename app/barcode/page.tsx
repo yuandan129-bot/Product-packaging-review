@@ -547,39 +547,41 @@ export default function BarcodePage() {
 
         {/* 右侧预览区 */}
         <div className={styles.preview}>
-          <div className={styles.previewCard}>
+          <div className={styles.previewWrapper}>
             {generated && (
               <span className={styles.badgeAuth}>
-                基于 EAN-13 国际标准 (ISO/IEC 15420) 生成
+                基于 JsBarcode 渲染引擎生成
               </span>
             )}
-            <canvas
-              ref={canvasRef}
-              className={styles.canvas}
-              style={{ display: generated ? "block" : "none" }}
-            />
-            {generated ? (
-              <motion.div
-                className={styles.result}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
-              >
-                <div className={styles.downloadRow}>
-                  <button className={styles.downloadBtn} onClick={handleDownloadPNG}>
-                    下载 PNG（高清）
-                  </button>
-                  <button className={styles.downloadBtnOutline} onClick={handleDownloadSVG}>
-                    下载 SVG（矢量）
-                  </button>
+            <div className={styles.previewCard}>
+              <canvas
+                ref={canvasRef}
+                className={styles.canvas}
+                style={{ display: generated ? "block" : "none" }}
+              />
+              {generated ? (
+                <motion.div
+                  className={styles.result}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className={styles.downloadRow}>
+                    <button className={styles.downloadBtn} onClick={handleDownloadPNG}>
+                      下载 PNG（高清）
+                    </button>
+                    <button className={styles.downloadBtnOutline} onClick={handleDownloadSVG}>
+                      下载 SVG（矢量）
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className={styles.placeholder}>
+                  <span className={styles.placeholderIcon}>∥∥∥∥∥∥∥∥∥</span>
+                  <p>输入条码数值并选择尺寸预设</p>
                 </div>
-              </motion.div>
-            ) : (
-              <div className={styles.placeholder}>
-                <span className={styles.placeholderIcon}>∥∥∥∥∥∥∥∥∥</span>
-                <p>输入条码数值并选择尺寸预设</p>
-              </div>
-            )}
+              )}
+            </div>
             {barcodeCount > 0 && (
               <div className={styles.usageCounter}>
                 已为您生成过 {barcodeCount} 张条码
