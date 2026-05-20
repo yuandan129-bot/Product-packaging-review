@@ -548,6 +548,11 @@ export default function BarcodePage() {
         {/* 右侧预览区 */}
         <div className={styles.preview}>
           <div className={styles.previewCard}>
+            {generated && (
+              <span className={styles.badgeAuth}>
+                基于 EAN-13 国际标准 (ISO/IEC 15420) 生成
+              </span>
+            )}
             <canvas
               ref={canvasRef}
               className={styles.canvas}
