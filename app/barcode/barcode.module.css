@@ -458,6 +458,7 @@
 .result {
   display: flex;
   flex-direction: column;
+  margin-top: 50px;
   align-items: center;
   gap: var(--space-xl);
   width: 100%;
@@ -582,7 +583,8 @@
   letter-spacing: 0.3px;
   font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
   margin-bottom: var(--space-xs);
-  align-self: flex-start;
+  text-align: center;
+  width: 100%;
 }
 
 .usageCounter {
