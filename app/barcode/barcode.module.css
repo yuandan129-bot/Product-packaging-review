@@ -449,19 +449,19 @@
   box-shadow: var(--shadow-md);
   padding: var(--space-xxl);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
 }
 
 .result {
+  position: absolute;
+  bottom: 48px;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
-  margin-top: 110px;
   align-items: center;
-  gap: var(--space-xl);
-  width: 100%;
 }
 
 .canvas {
