@@ -112,6 +112,16 @@ export default function AnalyzePage() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const logEndRef = useRef<HTMLDivElement>(null)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  const abortRef = useRef<AbortController | null>(null)
+
+  // 终止审核
+  const handleCancel = () => {
+    abortRef.current?.abort()
+    timersRef.current.forEach(clearTimeout)
+    setIsAnalyzing(false)
+    setActiveStep('upload')
+    addLog('system', '── pipeline cancelled by user ──')
+  }
 
   const addLog = useCallback((tag: string, text: string) => {
     setLogs((prev) => {
@@ -180,6 +190,7 @@ export default function AnalyzePage() {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         body: formData,
+        signal: abortRef.current?.signal,
       })
 
       const result = await response.json()
@@ -236,6 +247,7 @@ export default function AnalyzePage() {
       const response = await fetch('/api/analyze-kimi', {
         method: 'POST',
         body: formData,
+        signal: abortRef.current?.signal,
       })
 
       const result = await response.json()
@@ -339,6 +351,7 @@ export default function AnalyzePage() {
 
   /* ── 总入口 ── */
   const handleAnalyze = async () => {
+    abortRef.current = new AbortController()
     setIsAnalyzing(true)
     setReport(null)
     if (pipeline === 'kimi') {
@@ -419,8 +432,8 @@ export default function AnalyzePage() {
           <section className={styles.splitRight}>
             <ReceiptReport
               report={report}
+              modelName="Moonshot Vision"
               onDownloadJSON={handleDownloadJSON}
-              onPrint={handlePrint}
             />
           </section>
         </div>
@@ -534,29 +547,29 @@ export default function AnalyzePage() {
 
           {/* 操作按钮 */}
           <div className={styles.actions}>
-            <motion.button className={styles.analyzeButton} onClick={handleAnalyze}
-              disabled={isAnalyzing}
-              whileHover={isAnalyzing ? {} : { scale: 1.05 }}
-              whileTap={isAnalyzing ? {} : { scale: 0.95 }}>
-              <AnimatePresence mode="wait">
-                {isAnalyzing ? (
-                  <motion.span key="loading" className={styles.btnLoading}
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <span className={styles.spinner} />审核中...
-                  </motion.span>
-                ) : (
-                  <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    开始审核
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-            <motion.button className={styles.backButton} onClick={handleBack}
-              disabled={isAnalyzing}
-              whileHover={isAnalyzing ? {} : { scale: 1.05 }}
-              whileTap={isAnalyzing ? {} : { scale: 0.95 }}>
-              返回
-            </motion.button>
+            {isAnalyzing ? (
+              <>
+                <button className={styles.cancelButton} onClick={handleCancel}>
+                  终止审核
+                </button>
+                <button className={styles.backButton} onClick={handleBack}>
+                  返回首页
+                </button>
+              </>
+            ) : (
+              <>
+                <motion.button className={styles.analyzeButton} onClick={handleAnalyze}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}>
+                  开始审核
+                </motion.button>
+                <motion.button className={styles.backButton} onClick={handleBack}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}>
+                  返回
+                </motion.button>
+              </>
+            )}
           </div>
         </div>
       </motion.div>

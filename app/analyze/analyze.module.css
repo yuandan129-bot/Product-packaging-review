@@ -357,6 +357,28 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.cancelButton {
+  padding: 10px 24px;
+  font-size: 20px;
+  font-weight: 480;
+  letter-spacing: -0.10px;
+  line-height: 1.40;
+  border: 1px solid var(--error);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: var(--card);
+  color: var(--error);
+  flex: 1;
+  min-width: 140px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--error);
+  color: #fff;
+}
+
 .backButton {
   padding: 10px 24px;
   font-size: 20px;

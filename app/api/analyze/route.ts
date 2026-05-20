@@ -17,7 +17,7 @@ const VISION_PROMPT = `你是一个包装标签文字提取专家。请仔细查
 {"textBlocks":[{"content":"原文","category":"类别","bbox":[x1,y1,x2,y2],"position":"位置"}],"imageDescription":"布局描述"}`
 
 /* ── DeepSeek 合规分析（单次调用，融合所有检查项） ── */
-const COMPLIANCE_PROMPT = `你是食品包装标签合规审核专家，依据 GB 7718-2025、GB 28050-2025、GB 2760-2024、《广告法》审核。
+const COMPLIANCE_PROMPT = `你是食品包装标签合规审核专家，依据 GB 7718-2025、GB 28050-2025、GB 2760-2024、《广告法》、《食品标识监督管理办法》审核。
 
 请逐项检查以下内容，只返回 JSON，不要其他文字：
 
@@ -26,25 +26,24 @@ const COMPLIANCE_PROMPT = `你是食品包装标签合规审核专家，依据 G
   "category": "食品分类",
   "standard": "执行标准号",
   "standardStatus": "current/expired/error",
-  "criticalErrors": [{ "severity": "error", "category": "类别", "message": "问题及条款", "position": "问题在包装上的位置", "bbox": [x1,y1,x2,y2], "referenceDoc": "品牌规范文件名或null" }],
-  "warnings": [{ "severity": "warning", "category": "类别", "message": "风险描述", "position": "位置描述", "bbox": [x1,y1,x2,y2], "referenceDoc": "文件名或null" }],
+  "criticalErrors": [{ "severity": "error", "category": "类别", "message": "问题描述", "position": "位置描述", "bbox": [x1,y1,x2,y2], "regulation": "规范条款", "suggestion": "修改建议", "referenceDoc": "品牌规范文件名或null" }],
+  "warnings": [{ "severity": "warning", "category": "类别", "message": "风险描述", "position": "位置描述", "bbox": [x1,y1,x2,y2], "regulation": "规范条款", "suggestion": "优化建议", "referenceDoc": "文件名或null" }],
   "typoIssues": [{ "severity": "error/warning", "wrong": "错字", "correct": "正字", "message": "说明", "position": "位置描述", "bbox": [x1,y1,x2,y2] }],
-  "checklist": { "品名": true, "配料表": true, "生产日期": true, "保质期": true, "致敏原标注": true, "营养成分表": true, "生产者信息": true, "执行标准号": true, "SC证号": true }
+  "checklist": { "品名": true, "配料表": true, "净含量": true, "生产日期": true, "保质期": true, "致敏原标注": true, "营养成分表": true, "生产者信息": true, "执行标准号": true, "SC证号": true, "营销词合规": true, "卖点证据": true }
 }
 
 检查清单（逐一执行，不可遗漏）：
-1. 强制标注项是否齐全（9项）
-2. 营养成分表格式、单位、NRV%是否正确
-3. 广告法禁用词（最、第一、顶级、极致、首选、唯一、国家级等）
-4. 错别字（保质期→保盾期、脂肪→脂防、钠→纳、蛋白质→蛋白贡等）
-5. 配料表是否按添加量递减排列
-6. 执行标准号是否现行有效
-7. 如提供品牌规范，逐一核对包装上的企业名称、地址、SC证号、电话是否一致
+1. 强制标注项是否齐全（9项：品名、配料表、净含量/规格、生产日期、保质期、贮存条件、执行标准号、SC证号、生产者信息）
+2. 营养成分表格式、单位(g/mg/kJ)、NRV%是否正确，数值修约间隔是否合规
+3. 配料表是否按添加量递减排列
+4. 执行标准号是否现行有效
+5. 错别字（保质期→保盾期、脂肪→脂防、钠→纳、蛋白质→蛋白贡等）
+6. 广告法禁用词（最、第一、顶级、极致、首选、唯一、国家级、全网第一、史上最、100%等）
+7. 夸大宣传检测：识别卖点宣称（如"零添加"、"无农药残留"、"96项检测"、"100%天然"、"高钙"、"低脂"等），对照GB 28050营养声称和《广告法》判断是否合规
+8. 证据链检测：如卖点宣称涉及具体数据或检测结果（如"96项农药无残留"、"经SGS检测"），在warnings中标注"该宣称需提供对应检测报告或认证证书，请核实"
+9. 如提供品牌规范，逐一核对包装上的企业名称、地址、SC证号、电话是否一致
 
-每个问题（criticalErrors/warnings/typoIssues）都必须标注：
-- position：问题在包装上的具体位置（结合文字块编号和位置描述，如"块3，上部产品名称区域"）
-- bbox：如该问题对应某文字块的 bbox 坐标，直接引用，否则填 null
-- referenceDoc：如品牌规范中有对应正确信息，标注文件名，否则填 null`
+每个 criticalErrors/warnings 必须包含 regulation（规范条款编号）和 suggestion（具体修改建议）字段。`
 
 export async function POST(request: NextRequest) {
   try {

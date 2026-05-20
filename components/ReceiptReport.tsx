@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { ComplianceReport } from '../types/compliance'
 import styles from './ReceiptReport.module.css'
 
@@ -12,8 +12,8 @@ interface BrandFile {
 
 interface Props {
   report: ComplianceReport
+  modelName?: string
   onDownloadJSON?: () => void
-  onPrint?: () => void
 }
 
 function getBrandFiles(): BrandFile[] {
@@ -32,13 +32,8 @@ function RefLink({ docName }: { docName: string }) {
   const match = brandFiles.find((f) => f.name.includes(docName))
   const isText = match && !match.type.startsWith('image/') && !match.content.startsWith('data:image')
 
-  if (!match) {
-    return <span className={styles.refPlain}>{docName}</span>
-  }
-
-  if (!isText) {
-    return <span className={styles.refPlain}>{docName} (图片)</span>
-  }
+  if (!match) return <span className={styles.refText}>{docName}</span>
+  if (!isText) return <span className={styles.refText}>{docName}（图片文件）</span>
 
   return (
     <span>
@@ -46,165 +41,190 @@ function RefLink({ docName }: { docName: string }) {
         {expanded ? '▾' : '▸'} {docName}
       </span>
       {expanded && (
-        <pre className={styles.refPreview}>
-          {match.content.slice(0, 500)}
-          {match.content.length > 500 && '\n...'}
-        </pre>
+        <pre className={styles.refPreview}>{match.content.slice(0, 500)}{match.content.length > 500 && '\n...'}</pre>
       )}
     </span>
   )
 }
 
-export default function ReceiptReport({ report, onDownloadJSON, onPrint }: Props) {
-  const hasBrandFiles = getBrandFiles().length > 0
-  const totalIssues =
-    (report.criticalErrors?.length || 0) +
-    (report.warnings?.length || 0) +
-    (report.typoIssues?.length || 0)
+export default function ReceiptReport({ report, modelName, onDownloadJSON }: Props) {
+  const reportRef = useRef<HTMLDivElement>(null)
+  const totalIssues = (report.criticalErrors?.length || 0) + (report.warnings?.length || 0) + (report.typoIssues?.length || 0)
+  const checklistItems = Object.entries(report.checklist || {})
+  const failedItems = checklistItems.filter(([, v]) => !v).map(([k]) => k)
+
+  const handleSaveImage = async () => {
+    if (!reportRef.current) return
+    try {
+      const { toPng } = await import('html-to-image')
+      const dataUrl = await toPng(reportRef.current, { backgroundColor: '#ffffff', pixelRatio: 2 })
+      const a = document.createElement('a')
+      a.href = dataUrl
+      a.download = `compliance-report-${Date.now()}.png`
+      a.click()
+    } catch {
+      alert('图片导出失败，请尝试打印为 PDF')
+    }
+  }
+
+  const handlePrint = () => window.print()
 
   return (
-    <div className={styles.receipt}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h2 className={styles.title}>包装背标合规体检报告</h2>
-        <div className={styles.meta}>
-          {new Date().toLocaleString('zh-CN')}
-          {' · '}
-          NO. {Date.now().toString(36).slice(-6).toUpperCase()}
+    <div className={styles.reportWrapper} ref={reportRef}>
+      {/* ── 报告头部 ── */}
+      <header className={styles.header}>
+        <h2 className={styles.title}>包装合规检测报告</h2>
+        <div className={styles.metaRow}>
+          <span>NO. {Date.now().toString(36).slice(-6).toUpperCase()}</span>
+          <span>{new Date().toLocaleString('zh-CN')}</span>
         </div>
-      </div>
+      </header>
 
-      {/* Product Summary */}
-      <div className={styles.divider} />
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>产品识别摘要</h3>
-        <table className={styles.table}>
-          <tbody>
-            <tr><td className={styles.label}>产品名称</td><td>{report.productName}</td></tr>
-            <tr><td className={styles.label}>分类属性</td><td>{report.category}</td></tr>
-            <tr>
-              <td className={styles.label}>执行标准</td>
-              <td>
-                {report.standard}
+      {/* ── 产品摘要 ── */}
+      <section className={styles.summary}>
+        <div className={styles.summaryGrid}>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>产品名称</span>
+            <span className={styles.summaryValue}>{report.productName || '—'}</span>
+          </div>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>食品分类</span>
+            <span className={styles.summaryValue}>{report.category || '—'}</span>
+          </div>
+          <div className={styles.summaryItem}>
+            <span className={styles.summaryLabel}>执行标准</span>
+            <span className={styles.summaryValue}>
+              {report.standard || '—'}
+              {report.standardStatus && (
                 <span className={report.standardStatus === 'current' ? styles.badgeOK : styles.badgeNG}>
                   {report.standardStatus === 'current' ? '现行' : report.standardStatus === 'expired' ? '过期' : '错误'}
                 </span>
-              </td>
+              )}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <div className={styles.divider} />
+
+      {/* ── 检测结果总览表 ── */}
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>检测结果总览</h3>
+        <table className={styles.checkTable}>
+          <thead>
+            <tr>
+              <th>检测项</th>
+              <th>结果</th>
+              <th>说明</th>
             </tr>
+          </thead>
+          <tbody>
+            {checklistItems.map(([item, passed]) => (
+              <tr key={item} className={passed ? styles.rowOK : styles.rowFail}>
+                <td>{item}</td>
+                <td className={passed ? styles.cellOK : styles.cellFail}>
+                  {passed ? '✓' : '✗'}
+                </td>
+                <td className={styles.cellNote}>
+                  {passed ? '—' : failedItems.includes(item) ? '存在问题' : '—'}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
-      </div>
+        {totalIssues > 0 && (
+          <p className={styles.resultSummary}>共发现 {report.criticalErrors.length} 项错误、{report.warnings.length} 项预警、{report.typoIssues.length} 项错别字</p>
+        )}
+        {totalIssues === 0 && (
+          <p className={styles.resultSummaryOK}>未发现合规问题 ✓</p>
+        )}
+      </section>
 
-      {/* Critical Errors */}
-      {report.criticalErrors.length > 0 && (
+      {/* ── 问题详述 ── */}
+      {totalIssues > 0 && (
         <>
           <div className={styles.divider} />
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>严重错误 · 必须修改</h3>
+          <section className={styles.section}>
+            <h3 className={styles.sectionTitle}>问题详述</h3>
+
             {report.criticalErrors.map((e, i) => (
-              <div key={i} className={`${styles.item} ${styles.itemError}`}>
-                <div className={styles.itemHead}>
-                  <span className={`${styles.badge} ${styles.badgeError}`}>ERR</span>
-                  <span className={styles.itemCat}>{e.category}</span>
+              <div key={`err-${i}`} className={styles.issueCard}>
+                <div className={styles.issueHeader}>
+                  <span className={styles.issueBadgeError}>错误</span>
+                  <span className={styles.issueNum}>{i + 1}/{totalIssues}</span>
+                  <span className={styles.issueCat}>{e.category}</span>
                 </div>
-                <p className={styles.itemMsg}>{e.message}</p>
-                {e.position && <p className={styles.itemPos}>📍 {e.position}</p>}
-                {e.referenceDoc && hasBrandFiles && (
-                  <p className={styles.itemRef}><RefLink docName={e.referenceDoc} /></p>
+                <p className={styles.issueMsg}>{e.message}</p>
+                {e.position && <p className={styles.issueMeta}>📍 位置：{e.position}</p>}
+                {e.regulation && <p className={styles.issueMeta}>📋 依据：{e.regulation}</p>}
+                {e.suggestion && <p className={styles.issueSuggestion}>💡 建议：{e.suggestion}</p>}
+                {e.referenceDoc && (
+                  <p className={styles.issueMeta}>📄 参考文档：<RefLink docName={e.referenceDoc} /></p>
                 )}
               </div>
             ))}
-          </div>
-        </>
-      )}
 
-      {/* Warnings */}
-      {report.warnings.length > 0 && (
-        <>
-          <div className={styles.divider} />
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>风险预警 · 建议优化</h3>
             {report.warnings.map((w, i) => (
-              <div key={i} className={`${styles.item} ${styles.itemWarn}`}>
-                <div className={styles.itemHead}>
-                  <span className={`${styles.badge} ${styles.badgeWarn}`}>WARN</span>
-                  <span className={styles.itemCat}>{w.category}</span>
+              <div key={`warn-${i}`} className={styles.issueCard}>
+                <div className={styles.issueHeader}>
+                  <span className={styles.issueBadgeWarn}>预警</span>
+                  <span className={styles.issueNum}>{report.criticalErrors.length + i + 1}/{totalIssues}</span>
+                  <span className={styles.issueCat}>{w.category}</span>
                 </div>
-                <p className={styles.itemMsg}>{w.message}</p>
-                {w.position && <p className={styles.itemPos}>📍 {w.position}</p>}
-                {w.referenceDoc && hasBrandFiles && (
-                  <p className={styles.itemRef}><RefLink docName={w.referenceDoc} /></p>
+                <p className={styles.issueMsg}>{w.message}</p>
+                {w.position && <p className={styles.issueMeta}>📍 位置：{w.position}</p>}
+                {w.regulation && <p className={styles.issueMeta}>📋 依据：{w.regulation}</p>}
+                {w.suggestion && <p className={styles.issueSuggestion}>💡 建议：{w.suggestion}</p>}
+                {w.referenceDoc && (
+                  <p className={styles.issueMeta}>📄 参考文档：<RefLink docName={w.referenceDoc} /></p>
                 )}
               </div>
             ))}
-          </div>
-        </>
-      )}
 
-      {/* Typo Issues */}
-      {report.typoIssues.length > 0 && (
-        <>
-          <div className={styles.divider} />
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>错别字纠正</h3>
             {report.typoIssues.map((t, i) => (
-              <div key={i} className={`${styles.item} ${t.severity === 'error' ? styles.itemError : styles.itemWarn}`}>
-                <div className={styles.itemHead}>
-                  <span className={`${styles.badge} ${t.severity === 'error' ? styles.badgeError : styles.badgeWarn}`}>
-                    {t.severity === 'error' ? 'ERR' : 'WARN'}
+              <div key={`typo-${i}`} className={styles.issueCard}>
+                <div className={styles.issueHeader}>
+                  <span className={t.severity === 'error' ? styles.issueBadgeError : styles.issueBadgeWarn}>
+                    错别字
                   </span>
-                  <span className={styles.itemCat}>{t.category}</span>
+                  <span className={styles.issueNum}>{report.criticalErrors.length + report.warnings.length + i + 1}/{totalIssues}</span>
+                  <span className={styles.issueCat}>{t.category}</span>
                 </div>
-                <p className={styles.itemMsg}>
+                <p className={styles.issueMsg}>
                   <span className={styles.typoWrong}>{t.wrong}</span>
                   {' → '}
                   <span className={styles.typoCorrect}>{t.correct}</span>
                 </p>
-                {t.message && <p className={styles.itemMsg}>{t.message}</p>}
-                {t.position && <p className={styles.itemPos}>📍 {t.position}</p>}
+                {t.message && <p className={styles.issueMsg}>{t.message}</p>}
+                {t.position && <p className={styles.issueMeta}>📍 位置：{t.position}</p>}
               </div>
             ))}
-          </div>
+          </section>
         </>
       )}
 
-      {/* Checklist */}
       <div className={styles.divider} />
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>完整性清单</h3>
-        <div className={styles.checklist}>
-          {Object.entries(report.checklist).map(([item, checked]) => (
-            <span key={item} className={styles.checkItem}>
-              <span className={checked ? styles.checkOK : styles.checkFail}>
-                {checked ? '✓' : '✗'}
-              </span>
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
 
-      {/* Footer */}
-      <div className={styles.divider} />
-      <div className={styles.footer}>
-        {totalIssues > 0 ? (
-          <p className={styles.footerSummary}>
-            共发现 {report.criticalErrors.length} 项严重错误、{report.warnings.length} 项风险预警、{report.typoIssues.length} 项错别字
-          </p>
-        ) : (
-          <p className={styles.footerSummary}>未发现合规问题 ✓</p>
+      {/* ── 操作按钮 ── */}
+      <section className={styles.actions}>
+        <button className={styles.btnPrimary} onClick={handlePrint}>保存为 PDF</button>
+        <button className={styles.btn} onClick={handleSaveImage}>保存为图片</button>
+        {onDownloadJSON && (
+          <button className={styles.btn} onClick={onDownloadJSON}>保存 JSON</button>
         )}
+      </section>
 
-        <div className={styles.footerActions}>
-          {onDownloadJSON && (
-            <button className={styles.btn} onClick={onDownloadJSON}>保存 JSON</button>
-          )}
-          {onPrint && (
-            <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={onPrint}>打印报告</button>
-          )}
+      {/* ── 底部 ── */}
+      <footer className={styles.footer}>
+        <div className={styles.footerBrand}>
+          <img src="/avatar.png" alt="" className={styles.footerAvatar} />
+          <span className={styles.footerName}>元旦为你检测</span>
         </div>
-        <p className={styles.footerThanks}>谢谢使用 · THANK YOU</p>
-      </div>
+        <p className={styles.footerMeta}>
+          此检测基于 {modelName || 'Moonshot Vision'} 模型
+        </p>
+        <p className={styles.footerDisclaimer}>内容由 AI 生成，仅供参考</p>
+      </footer>
     </div>
   )
 }

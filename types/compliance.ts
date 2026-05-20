@@ -4,6 +4,8 @@ export interface ComplianceIssue {
   message: string
   position?: string
   bbox?: [number, number, number, number]
+  regulation?: string
+  suggestion?: string
   referenceDoc?: string
 }
 
