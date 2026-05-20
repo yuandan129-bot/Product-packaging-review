@@ -35,8 +35,8 @@ const DUAL_STEPS: StepDef[] = [
 
 const KIMI_STEPS: StepDef[] = [
   { id: 'upload', label: '图片上传', desc: '上传包装图片' },
-  { id: 'vision', label: 'Kimi K2.5 视觉解析', desc: '多模态提取文字与布局' },
-  { id: 'analyze', label: 'Kimi K2.5 合规审核', desc: '逐项审核合规性' },
+  { id: 'vision', label: 'Moonshot 视觉解析', desc: '多模态提取文字与布局' },
+  { id: 'analyze', label: 'Moonshot 合规审核', desc: '逐项审核合规性' },
   { id: 'report', label: '生成审核报告', desc: '输出体检报告' },
 ]
 
@@ -211,7 +211,7 @@ export default function AnalyzePage() {
     }
   }
 
-  /* ── Kimi K2.5 多模态管道 ── */
+  /* ── Moonshot Vision管道 ── */
   const runKimiPipeline = async () => {
     setActiveStep('vision')
     addLog('system', '── Kimi K2.5 multimodal pipeline started ──')
@@ -392,7 +392,7 @@ export default function AnalyzePage() {
               {/* 管道选择器（只读） */}
               <div className={styles.pipelineSelector}>
                 <button className={`${styles.pipelineTab} ${pipeline === 'kimi' ? styles.pipelineTabActive : ''}`} disabled>
-                  Kimi K2.5 多模态
+                  Moonshot Vision
                 </button>
                 <button className={`${styles.pipelineTab} ${pipeline === 'dual' ? styles.pipelineTabActive : ''}`} disabled>
                   Qwen + DeepSeek
@@ -444,7 +444,7 @@ export default function AnalyzePage() {
               onClick={() => !isAnalyzing && setPipeline('kimi')}
               disabled={isAnalyzing}
             >
-              Kimi K2.5 多模态
+              Moonshot Vision
             </button>
             <button
               className={`${styles.pipelineTab} ${pipeline === 'dual' ? styles.pipelineTabActive : ''}`}

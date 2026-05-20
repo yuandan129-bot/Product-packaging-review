@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
           Authorization: `Bearer ${kimiKey}`,
         },
         body: JSON.stringify({
-          model: "kimi-k2.5",
+          model: "moonshot-v1-32k-vision-preview",
           messages: [
             { role: "system", content: SYSTEM_PROMPT + brandContext },
             {
@@ -109,8 +109,8 @@ export async function POST(request: NextRequest) {
               ],
             },
           ],
-          max_tokens: 6000,
-          temperature: 1,
+          max_tokens: 4096,
+          temperature: 0.1,
         }),
         signal: controller.signal,
       })
