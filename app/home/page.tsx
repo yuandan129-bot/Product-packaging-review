@@ -40,8 +40,8 @@ export default function Home() {
   const imageInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    // 模块级变量 splashSeen 在刷新后自动重置，确保每次刷新都回到开屏页
-    if (!(window as any).__splashSeen) {
+    // sessionStorage 保持刷新不丢失，但关闭标签页后重新显示开屏页
+    if (!sessionStorage.getItem('splashSeen')) {
       router.replace('/splash')
       return
     }

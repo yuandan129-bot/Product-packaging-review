@@ -48,7 +48,7 @@ export default function SplashScreen() {
   }, [])
 
   const handleClick = () => {
-    ;(window as any).__splashSeen = true
+    sessionStorage.setItem('splashSeen', '1')
     router.push("/home")
   }
 
