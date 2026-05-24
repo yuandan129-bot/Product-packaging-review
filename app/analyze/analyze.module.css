@@ -404,6 +404,123 @@
 
 .backButton:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* OCR Button */
+.ocrButton {
+  padding: 10px 24px;
+  font-size: 20px;
+  font-weight: 480;
+  letter-spacing: -0.10px;
+  line-height: 1.40;
+  border: 1px solid var(--foreground);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: var(--card);
+  color: var(--foreground);
+  flex: 1;
+  min-width: 160px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.ocrButton:hover:not(:disabled) {
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ocrButton:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* OCR Section */
+.ocrSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.ocrLabel {
+  font-size: 14px;
+  font-weight: 480;
+  color: var(--foreground);
+  letter-spacing: -0.1px;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.ocrHint {
+  font-size: 12px;
+  font-weight: 330;
+  color: var(--muted-foreground);
+}
+
+.ocrTextarea {
+  width: 100%;
+  padding: var(--space-md);
+  font-family: 'FigmaMono', 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 13px;
+  font-weight: 330;
+  line-height: 1.6;
+  letter-spacing: -0.1px;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.ocrTextarea:focus {
+  border-color: var(--foreground);
+}
+
+.ocrTextarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Report Placeholder */
+.reportPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xxl);
+  text-align: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+.reportPlaceholderIcon {
+  font-family: 'FigmaMono', monospace;
+  font-size: 48px;
+  color: var(--muted-foreground);
+  opacity: 0.3;
+  letter-spacing: 4px;
+}
+
+.reportPlaceholderText {
+  font-size: 18px;
+  font-weight: 330;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: -0.26px;
+  opacity: 0.5;
+}
+
+.reportPlaceholderHint {
+  font-size: 13px;
+  font-weight: 330;
+  color: var(--muted-foreground);
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+
 /* ============================================
    Console — 右侧实时后台面板
    ============================================ */

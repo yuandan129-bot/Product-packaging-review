@@ -32,7 +32,7 @@ export default function Home() {
   // 文档弹窗状态
   const [modalStandard, setModalStandard] = useState<{ code: string; name: string; docPath: string | null } | null>(null)
 
-  const [isHoveringUpload, setIsHoveringUpload] = useState(false)
+  const [pastedText, setPastedText] = useState("")
 
   const [brandFiles, setBrandFiles] = useState<File[]>([])
   const [brandPreviewUrls, setBrandPreviewUrls] = useState<string[]>([])
@@ -59,6 +59,7 @@ export default function Home() {
     const reader = new FileReader()
     reader.onload = async () => {
       sessionStorage.setItem('uploadedImage', reader.result as string)
+      sessionStorage.removeItem('uploadedText')
 
       // 读取品牌文件内容并存入 sessionStorage，供审核 API 使用
       if (brandFiles.length > 0) {
@@ -78,6 +79,28 @@ export default function Home() {
     reader.readAsDataURL(file)
 
     e.target.value = ''
+  }
+
+  // 粘贴文本 → 跳转审核页
+  const handleTextSubmit = async () => {
+    const text = pastedText.trim()
+    if (!text) {
+      alert('请先粘贴包装文字内容')
+      return
+    }
+    sessionStorage.setItem('uploadedText', text)
+    sessionStorage.removeItem('uploadedImage')
+
+    if (brandFiles.length > 0) {
+      const brandData: { name: string; type: string; content: string }[] = []
+      for (const f of brandFiles) {
+        const content = await readFileContent(f)
+        brandData.push({ name: f.name, type: f.type, content })
+      }
+      sessionStorage.setItem('brandFiles', JSON.stringify(brandData))
+    }
+
+    router.push('/analyze')
   }
 
   // 读取品牌文件内容：文本类读文字，图片类转 base64
@@ -311,16 +334,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Column - Upload Section — 整块热区可点击 */}
-        <motion.div
-          className={styles.rightColumn}
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 300, damping: 24 }}
-          onHoverStart={() => setIsHoveringUpload(true)}
-          onHoverEnd={() => setIsHoveringUpload(false)}
-          onClick={() => imageInputRef.current?.click()}
-          style={{ cursor: "pointer" }}
-        >
+        {/* Right Column - Upload Section */}
+        <div className={styles.rightColumn}>
           {/* Upload Text Area — 逐字弹跳动效 */}
           <div className={styles.uploadTextArea}>
             <h2 className={styles.uploadTitle}>
@@ -334,46 +349,68 @@ export default function Home() {
             </p>
             <p className={styles.trustBadge}>
               <ShinyText
-                text="本次审核使用模型为 DeepSeek V4 PRO"
+                text="支持 OCR + DeepSeek / OCR + Kimi 双管道审核"
                 speed={3}
                 color="rgba(0,0,0,0.3)"
                 shineColor="#000000"
-                spread={50}
+                spread={120}
                 direction="left"
               />
             </p>
           </div>
 
-          {/* Upload Circle */}
-          <div className={styles.uploadCircleWrapper}>
+          {/* Right Action Column — 加号 + 文本粘贴 上下排布 */}
+          <div className={styles.rightActionCol}>
+            {/* Upload Circle */}
+            <div className={styles.uploadCircleWrapper}>
+              <motion.div
+                className={styles.uploadCircle}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.08 }}
+                transition={{
+                  opacity: { duration: 0.5, delay: 0.3 },
+                  scale: { duration: 0.5, delay: 0.3 },
+                }}
+                onClick={() => imageInputRef.current?.click()}
+                style={{ cursor: "pointer" }}
+              >
+                <input
+                  ref={imageInputRef}
+                  id="imageUpload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className={styles.fileInput}
+                />
+                <label htmlFor="imageUpload" className={styles.uploadLabel}>
+                  <span className={styles.plusIcon}>+</span>
+                </label>
+              </motion.div>
+            </div>
+
+            {/* Text Paste Area — 单行粘贴条，回车提交 */}
             <motion.div
-              className={styles.uploadCircle}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                x: isHoveringUpload ? 10 : 0,
-              }}
-              transition={{
-                opacity: { duration: 0.5, delay: 0.3 },
-                scale: { duration: 0.5, delay: 0.3 },
-                x: { type: "spring", stiffness: 200, damping: 18 },
-              }}
+              className={styles.textPasteSection}
+              whileHover={{ scale: 1.03 }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
             >
-              <input
-                ref={imageInputRef}
-                id="imageUpload"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className={styles.fileInput}
+              <textarea
+                className={styles.textPasteArea}
+                value={pastedText}
+                onChange={(e) => setPastedText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    handleTextSubmit()
+                  }
+                }}
+                placeholder="粘贴文本后回车，生成审核检测"
+                rows={1}
               />
-              <label htmlFor="imageUpload" className={styles.uploadLabel}>
-                <span className={styles.plusIcon}>+</span>
-              </label>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Divider */}

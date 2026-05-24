@@ -199,7 +199,6 @@ export default function BarcodePage() {
         lineColor: "#000000",
       })
       setGenerated(true)
-      incrementBarcode().then((newCount) => setBarcodeCount(newCount))
     } catch (err) {
       console.error("条码生成失败:", err)
       alert(`条码生成失败：${err instanceof Error ? err.message : "请检查输入值是否符合格式要求"}`)
@@ -253,6 +252,7 @@ export default function BarcodePage() {
       link.download = `barcode-${fullCode}.png`
       link.href = exportCanvas.toDataURL("image/png")
       link.click()
+      incrementBarcode().then((newCount) => setBarcodeCount(newCount))
     } catch (err) {
       console.error("PNG 导出失败:", err)
       alert("PNG 导出失败，请重试")
@@ -305,6 +305,7 @@ export default function BarcodePage() {
       link.href = URL.createObjectURL(blob)
       link.click()
       URL.revokeObjectURL(link.href)
+      incrementBarcode().then((newCount) => setBarcodeCount(newCount))
     } catch (err) {
       console.error("SVG 导出失败:", err)
       alert(`SVG 导出失败：${err instanceof Error ? err.message : "未知错误"}`)
