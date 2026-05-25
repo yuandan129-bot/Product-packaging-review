@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kill 20202)",
+      "Bash(npm uninstall *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --connect-timeout 10 https://api.moonshot.ai/v1/models)",
+      "Bash(nslookup api.moonshot.ai)",
+      "Bash(curl -s -o /dev/null -w 'http_code:%{http_code}' --connect-timeout 10 -H 'Authorization: Bearer sk-3qQuMFG04xKtjNhlDO30iGQgpVwtKaecoO5uFq8LEWjyqaRa' -H 'Content-Type: application/json' -d '{\"model\":\"kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"max_tokens\":10}' https://api.moonshot.cn/v1/chat/completions)",
+      "Bash(curl -s -o /dev/null -w \"http_code:%{http_code}\" --connect-timeout 5 http://localhost:3000)",
+      "WebFetch(domain:vercel.com)",
+      "Bash(curl -s -w '\\\\nhttp_code:%{http_code}' --connect-timeout 30 -H 'Authorization: Bearer sk-3qQuMFG04xKtjNhlDO30iGQgpVwtKaecoO5uFq8LEWjyqaRa' -H 'Content-Type: application/json' -d '{\"model\":\"kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"回复OK即可\"}],\"max_tokens\":10}' https://api.moonshot.cn/v1/chat/completions)",
+      "Bash(curl -s -w '\\\\nhttp_code:%{http_code}' --connect-timeout 30 -H 'Authorization: Bearer sk-3qQuMFG04xKtjNhlDO30iGQgpVwtKaecoO5uFq8LEWjyqaRa' -H 'Content-Type: application/json' -d '{\"model\":\"kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"回复OK\"}],\"max_tokens\":20,\"chat_template_kwargs\":{\"enable_thinking\":false}}' https://api.moonshot.cn/v1/chat/completions)",
+      "Bash(curl -s -w '\\\\nhttp_code:%{http_code}' --connect-timeout 30 -H 'Authorization: Bearer sk-3qQuMFG04xKtjNhlDO30iGQgpVwtKaecoO5uFq8LEWjyqaRa' -H 'Content-Type: application/json' -d '{\"model\":\"kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"回复OK\"}],\"max_tokens\":20}' https://api.moonshot.cn/v1/chat/completions)",
+      "Bash(curl -s -w '\\\\nhttp_code:%{http_code}\\\\ntime_total:%{time_total}s' --connect-timeout 60 --max-time 60 -H 'Authorization: Bearer sk-3qQuMFG04xKtjNhlDO30iGQgpVwtKaecoO5uFq8LEWjyqaRa' -H 'Content-Type: application/json' -d '{\"model\":\"kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"回复OK即可\"}],\"max_tokens\":100,\"temperature\":0.1}' https://api.moonshot.cn/v1/chat/completions)",
+      "Bash(curl -s -w '\\\\nhttp_code:%{http_code}' --connect-timeout 60 --max-time 60 -H 'Authorization: Bearer sk-3qQuMFG04xKtjNhlDO30iGQgpVwtKaecoO5uFq8LEWjyqaRa' -H 'Content-Type: application/json' -d '{\"model\":\"kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"请返回JSON: {\\\\\"status\\\\\":\\\\\"ok\\\\\",\\\\\"msg\\\\\":\\\\\"测试成功\\\\\"}\"}],\"max_tokens\":500,\"temperature\":1}' https://api.moonshot.cn/v1/chat/completions)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); c=d['choices'][0]['message']; print\\('content:', c.get\\('content','\\(空\\)'\\)[:200]\\); print\\('reasoning_len:', len\\(c.get\\('reasoning_content',''\\)\\)\\); print\\('total_tokens:', d['usage']['total_tokens']\\)\")"
+    ]
+  }
+}

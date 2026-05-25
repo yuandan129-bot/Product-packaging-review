@@ -1,0 +1,27 @@
+{
+  "name": "packaging-review-app",
+  "version": "1.0.0",
+  "description": "AI 包装审核助手",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "jsbarcode": "^3.12.3",
+    "misans": "^4.1.0",
+    "motion": "^12.38.0",
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "25.6.2",
+    "@types/react": "19.2.14",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0"
+  }
+}

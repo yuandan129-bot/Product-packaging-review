@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>包装合规审核系统</title>
+  <script src="https://cdn.jsdelivr.net/npm/motion@latest"></script>
+  <style>
+    :root {
+      --primary: #000000;
+      --secondary: #ffffff;
+      --accent: #f5f5f5;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f9f9f9;
+      --text-primary: #000000;
+      --text-secondary: #666666;
+      --border: #e0e0e0;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.15);
+      --sticky-yellow: #fffacd;
+      --sticky-pink: #ffe4e1;
+      --sticky-blue: #e0f2fe;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3 {
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Main Container */
+    .container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Authority Sidebar */
+    .sidebar {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 200px;
+      height: 100vh;
+      background: #000;
+      color: #fff;
+      padding: 2rem 1rem;
+      overflow: hidden;
+      z-index: 100;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+
+    .ticker {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      animation: scroll 20s linear infinite;
+      height: 100%;
+    }
+
+    .ticker-item {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+
+    .ticker-item:hover {
+      opacity: 1;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-100%); }
+    }
+
+    /* Header */
+    .header {
+      padding: 8rem 2rem 4rem;
+      text-align: center;
+      border-bottom: 0.5px solid var(--border);
+      margin-right: 200px;
+      animation: fadeInDown 0.6s ease;
+    }
+
+    .header h1 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .slogan {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      min-height: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* Upload Section */
+    .upload-section {
+      padding: 6rem 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 200px;
+    }
+
+    .upload-box {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .upload-content {
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 4rem 2rem;
+      text-align: center;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .upload-content:hover {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: var(--secondary);
+    }
+
+    .upload-content:hover .upload-label p,
+    .upload-content:hover .upload-label span {
+      color: var(--secondary);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .upload-label {
+      cursor: pointer;
+      display: block;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .upload-label p {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .upload-label span {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .file-name {
+      color: var(--primary);
+      font-weight: 600;
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    /* Preview Section */
+    .preview-section {
+      padding: 4rem 2rem;
+      display: flex;
+      justify-content: center;
+      margin-right: 200px;
+      animation: fadeInUp 0.5s ease;
+    }
+
+    .preview-container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .image-preview {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      background: white;
+    }
+
+    .image-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .analyze-button {
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 700;
+      background: var(--primary);
+      color: var(--secondary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .analyze-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: var(--secondary);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .analyze-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Desktop Hint */
+    .desktop-hint {
+      padding: 4rem 2rem;
+      text-align: center;
+      border-top: 0.5px solid var(--border);
+      margin-right: 200px;
+    }
+
+    .hint-box {
+      display: inline-block;
+      padding: 1.5rem 2rem;
+      background: var(--sticky-yellow);
+      border-left: 4px solid var(--primary);
+      border-radius: 2px;
+      box-shadow: var(--shadow-md);
+      transform: rotate(-1deg);
+    }
+
+    .hint-box p {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Easter Egg */
+    .easter-egg {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      z-index: 9999;
+      pointer-events: none;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Report Page */
+    .report-container {
+      display: none;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .report-container.active {
+      display: block;
+    }
+
+    .desktop-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .desktop-grid {
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.5;
+    }
+
+    .report-content {
+      position: relative;
+      z-index: 1;
+      padding: 3rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: fadeInDown 0.6s ease;
+    }
+
+    .report-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #000;
+      margin-bottom: 0.5rem;
+    }
+
+    .timestamp {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .sticky-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .sticky-note {
+      background: var(--sticky-yellow);
+      border-left: 4px solid #000;
+      border-radius: 2px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      position: relative;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      animation: fadeInUp 0.5s ease;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sticky-note:hover {
+      transform: scale(1.05);
+    }
+
+    .sticky-note::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 20px;
+      width: 30px;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+    }
+
+    .sticky-note.summary {
+      background: #e0f2fe;
+      grid-column: 1 / -1;
+    }
+
+    .sticky-note.error {
+      background: #fee2e2;
+      border-left-color: #dc2626;
+    }
+
+    .sticky-note.warning {
+      background: #fef3c7;
+      border-left-color: #f59e0b;
+    }
+
+    .sticky-note.checklist {
+      background: #f0fdf4;
+      border-left-color: #16a34a;
+      grid-column: 1 / -1;
+    }
+
+    .note-header {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #000;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .note-content {
+      flex: 1;
+      font-size: 0.95rem;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .note-content p {
+      margin-bottom: 0.75rem;
+      color: #333;
+    }
+
+    .note-content strong {
+      color: #000;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      background: #16a34a;
+      color: white;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .checklist-item input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #16a34a;
+    }
+
+    .checklist-item span {
+      color: #333;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      animation: fadeInUp 0.5s ease 0.8s both;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-download {
+      background: #000;
+      color: white;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      background: white;
+      color: #000;
+      border: 1px solid #000;
+    }
+
+    .btn-share, .btn-new {
+      background: #f0f0f0;
+      color: #000;
+      border: 1px solid #ddd;
+    }
+
+    .btn-share:hover, .btn-new:hover {
+      background: #000;
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 120px;
+        padding: 1rem 0.5rem;
+      }
+
+      .header, .upload-section, .preview-section, .desktop-hint {
+        margin-right: 120px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .header, .upload-section, .preview-section, .desktop-hint {
+        margin-right: 0;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .upload-section {
+        padding: 4rem 1rem;
+      }
+
+      .upload-content {
+        padding: 2rem 1rem;
+      }
+
+      .upload-icon {
+        font-size: 2rem;
+      }
+
+      .sticky-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sticky-note.summary, .sticky-note.checklist {
+        grid-column: 1;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Upload Page -->
+  <main class="container" id="uploadPage">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="ticker">
+        <div class="ticker-item">GB 7718 SCANNING...</div>
+        <div class="ticker-item">GB 28050 VALIDATING...</div>
+        <div class="ticker-item">GB 2760 CHECKING...</div>
+        <div class="ticker-item">ALLERGEN DETECTION...</div>
+        <div class="ticker-item">UNIT VERIFICATION...</div>
+        <div class="ticker-item">STANDARD EXPIRATION CHECK...</div>
+      </div>
+    </aside>
+
+    <!-- Easter Egg -->
+    <div class="easter-egg" id="easterEgg" style="display: none;"></div>
+
+    <!-- Header -->
+    <section class="header">
+      <h1>包装合规审核系统</h1>
+      <p class="slogan" id="slogan">Let design be beauty, let compliance be AI.</p>
+    </section>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <div class="upload-box">
+        <div class="upload-content">
+          <input type="file" accept="image/*" class="file-input" id="imageUpload">
+          <label for="imageUpload" class="upload-label">
+            <div class="upload-icon">📦</div>
+            <p>上传包装设计稿</p>
+            <span>支持 JPG / PNG</span>
+            <div class="file-name" id="fileName" style="display: none;"></div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preview Section -->
+    <section class="preview-section" id="previewSection" style="display: none;">
+      <div class="preview-container">
+        <div class="image-preview">
+          <img id="previewImage" alt="设计稿预览">
+        </div>
+        <button class="analyze-button" id="analyzeBtn">开始审核</button>
+      </div>
+    </section>
+
+    <!-- Desktop Hint -->
+    <section class="desktop-hint">
+      <div class="hint-box">
+        <p>✨ 审核完成后，您将看到设计师桌面风格的合规报告</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Report Page -->
+  <main class="report-container" id="reportPage">
+    <div class="desktop-background">
+      <div class="desktop-grid"></div>
+    </div>
+
+    <div class="report-content">
+      <header class="report-header">
+        <h1>📋 包装背标合规体检报告</h1>
+        <p class="timestamp" id="reportTime"></p>
+      </header>
+
+      <div class="sticky-grid" id="stickyGrid"></div>
+
+      <div class="actions">
+        <button class="btn btn-download" onclick="downloadReport()">📥 下载报告</button>
+        <button class="btn btn-share">🔗 分享报告</button>
+        <button class="btn btn-new" onclick="newReview()">➕ 新建审核</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SLOGANS = [
+      'Let design be beauty, let compliance be AI.',
+      'Maybe I shouldn\'t be working today...',
+      '让包装说实话',
+      '合规不是选项，是必须',
+      '设计师的法规小助手',
+      '一张图，一份报告，零遗漏',
+    ];
+
+    const EASTER_EGGS = [
+      'Yuandan is the Best!',
+      '元旦来了',
+      '元旦审核中...',
+      '元旦说：合规第一！',
+    ];
+
+    let currentReport = null;
+
+    // Slogan rotation
+    function rotateSlogans() {
+      const sloganEl = document.getElementById('slogan');
+      setInterval(() => {
+        const newSlogan = SLOGANS[Math.floor(Math.random() * SLOGANS.length)];
+        sloganEl.textContent = newSlogan;
+      }, 8000);
+    }
+
+    // Easter egg trigger
+    function triggerEasterEgg() {
+      if (Math.random() < 0.2) {
+        const egg = EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)];
+        const easterEggEl = document.getElementById('easterEgg');
+        easterEggEl.textContent = egg;
+        easterEggEl.style.display = 'block';
+        setTimeout(() => {
+          easterEggEl.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    // Image upload
+    document.getElementById('imageUpload').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('previewImage').src = event.target.result;
+          document.getElementById('previewSection').style.display = 'flex';
+          document.getElementById('fileName').textContent = file.name;
+          document.getElementById('fileName').style.display = 'block';
+          triggerEasterEgg();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Analyze button
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+      const btn = document.getElementById('analyzeBtn');
+      btn.disabled = true;
+      btn.textContent = '审核中...';
+      triggerEasterEgg();
+
+      // Mock analysis
+      setTimeout(() => {
+        currentReport = {
+          productName: '示例产品',
+          category: '食品',
+          standard: 'GB 7718',
+          standardStatus: 'current',
+          criticalErrors: [
+            {
+              category: '逻辑错误',
+              message: '营养成分表中"糖"的单位标注为 mg，法定单位应为 g',
+            },
+            {
+              category: '缺失项',
+              message: '配料中发现"全脂奶粉"，未按 GB 7718 要求标注致敏原提醒',
+            },
+          ],
+          warnings: [
+            {
+              category: '错别字',
+              message: '识别到"保盾期"，应为"保质期"',
+            },
+            {
+              category: '广告法',
+              message: '宣传语中出现"全网第一"，存在违规风险',
+            },
+          ],
+          checklist: {
+            '品名': true,
+            '配料表': true,
+            '生产日期': false,
+            '保质期': true,
+            '营养成分表': true,
+            '生产者信息': true,
+          },
+        };
+
+        showReport();
+      }, 2000);
+    });
+
+    // Show report
+    function showReport() {
+      document.getElementById('uploadPage').style.display = 'none';
+      document.getElementById('reportPage').classList.add('active');
+      document.getElementById('reportTime').textContent = new Date().toLocaleString('zh-CN');
+
+      const grid = document.getElementById('stickyGrid');
+      grid.innerHTML = '';
+
+      // Summary note
+      const summaryNote = document.createElement('div');
+      summaryNote.className = 'sticky-note summary';
+      summaryNote.innerHTML = `
+        <div class="note-header">产品识别摘要</div>
+        <div class="note-content">
+          <p><strong>产品名称：</strong> ${currentReport.productName}</p>
+          <p><strong>分类属性：</strong> ${currentReport.category}</p>
+          <p><strong>执行标准：</strong> ${currentReport.standard}
+            <span class="status-badge">${currentReport.standardStatus === 'current' ? '现行' : '过期'}</span>
+          </p>
+        </div>
+      `;
+      grid.appendChild(summaryNote);
+
+      // Error notes
+      currentReport.criticalErrors.forEach((error, idx) => {
+        const note = document.createElement('div');
+        note.className = 'sticky-note error';
+        note.innerHTML = `
+          <div class="note-header">❌ ${error.category}</div>
+          <div class="note-content">
+            <p>${error.message}</p>
+          </div>
+        `;
+        grid.appendChild(note);
+      });
+
+      // Warning notes
+      currentReport.warnings.forEach((warning, idx) => {
+        const note = document.createElement('div');
+        note.className = 'sticky-note warning';
+        note.innerHTML = `
+          <div class="note-header">⚠️ ${warning.category}</div>
+          <div class="note-content">
+            <p>${warning.message}</p>
+          </div>
+        `;
+        grid.appendChild(note);
+      });
+
+      // Checklist note
+      const checklistNote = document.createElement('div');
+      checklistNote.className = 'sticky-note checklist';
+      let checklistHTML = '<div class="note-header">✓ 完整性清单</div><div class="note-content"><div class="checklist">';
+      Object.entries(currentReport.checklist).forEach(([item, checked]) => {
+        checklistHTML += `
+          <label class="checklist-item">
+            <input type="checkbox" ${checked ? 'checked' : ''} disabled>
+            <span>${item}</span>
+          </label>
+        `;
+      });
+      checklistHTML += '</div></div></div>';
+      checklistNote.innerHTML = checklistHTML;
+      grid.appendChild(checklistNote);
+    }
+
+    // Download report
+    function downloadReport() {
+      const element = document.createElement('a');
+      const file = new Blob([JSON.stringify(currentReport, null, 2)], {
+        type: 'application/json',
+      });
+      element.href = URL.createObjectURL(file);
+      element.download = `compliance-report-${Date.now()}.json`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
+
+    // New review
+    function newReview() {
+      document.getElementById('uploadPage').style.display = 'block';
+      document.getElementById('reportPage').classList.remove('active');
+      document.getElementById('imageUpload').value = '';
+      document.getElementById('previewSection').style.display = 'none';
+      document.getElementById('fileName').style.display = 'none';
+      const btn = document.getElementById('analyzeBtn');
+      btn.disabled = false;
+      btn.textContent = '开始审核';
+    }
+
+    // Initialize
+    rotateSlogans();
+  </script>
+</body>
+</html>

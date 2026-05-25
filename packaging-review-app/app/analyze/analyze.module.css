@@ -1,0 +1,821 @@
+/* ── 双栏外壳 ── */
+.shell {
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── 左侧主内容 ── */
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  width: 100%;
+}
+
+.content {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ============================================
+   Pipeline Selector
+   ============================================ */
+.pipelineSelector {
+  display: flex;
+  background: var(--muted);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.pipelineTab {
+  flex: 1;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 480;
+  letter-spacing: -0.1px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.pipelineTab:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.pipelineTab:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pipelineTabActive {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ============================================
+   Stepper
+   ============================================ */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-lg) var(--space-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.stepWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.stepLine {
+  position: absolute;
+  top: 18px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+  transition: background 0.5s ease;
+}
+
+.stepLineDone { background: var(--foreground); }
+
+.stepNode {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  background: var(--card);
+  border: 2px solid var(--border);
+  transition: all 0.35s ease;
+}
+
+.stepNode_pending {
+  border-color: var(--border);
+  background: var(--muted);
+}
+
+.stepNode_active {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--primary-foreground);
+}
+
+.stepNode_completed {
+  border-color: var(--foreground);
+  background: var(--foreground);
+  color: var(--primary-foreground);
+}
+
+.stepNodePulse {
+  animation: stepPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.25); }
+  50% { box-shadow: 0 0 0 10px rgba(0,0,0,0); }
+}
+
+.stepCheck { width: 16px; height: 16px; }
+
+.stepDot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--primary-foreground);
+  animation: dotBlink 1s ease-in-out infinite;
+}
+
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.stepNum {
+  font-size: 14px;
+  font-weight: 540;
+  color: var(--muted-foreground);
+  opacity: 0.4;
+}
+
+.stepText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--space-sm);
+  gap: 4px;
+}
+
+.stepLabel {
+  font-size: 14px;
+  font-weight: 540;
+  letter-spacing: -0.1px;
+  color: var(--foreground);
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+
+.stepLabelPending { color: var(--border); font-weight: 340; }
+.stepLabelActive { color: var(--foreground); font-weight: 540; }
+
+.stepDesc {
+  font-size: 12px;
+  font-weight: 320;
+  color: var(--border);
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+
+.stepWrapper:has(.stepNode_active) .stepDesc { color: var(--muted-foreground); }
+.stepWrapper:has(.stepNode_completed) .stepDesc { color: var(--muted-foreground); }
+.stepWrapper:has(.stepNode_pending) .stepDesc { color: var(--border); }
+
+/* ============================================
+   Image Preview
+   ============================================ */
+.imagePreview {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+  max-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ============================================
+   Physical Dimensions
+   ============================================ */
+.dimensionsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.dimToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  color: var(--foreground);
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.dimToggle:hover { border-color: var(--foreground); border-style: solid; }
+
+.dimToggleHint {
+  font-size: 13px;
+  font-weight: 330;
+  color: var(--muted-foreground);
+}
+
+.dimRow {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  overflow: hidden;
+}
+
+.dimInput {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+}
+
+.dimLabel {
+  font-size: 13px;
+  font-weight: 480;
+  color: var(--foreground);
+  letter-spacing: -0.1px;
+}
+
+.dimSep {
+  font-size: 16px;
+  font-weight: 330;
+  padding-bottom: var(--space-sm);
+  flex-shrink: 0;
+}
+
+.dimInput .input {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 330;
+  padding: var(--space-sm) 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.2s ease;
+  width: 100%;
+}
+
+.dimInput .input:focus { border-color: var(--foreground); }
+
+.dimHint {
+  font-size: 13px;
+  font-weight: 330;
+  letter-spacing: -0.14px;
+  color: var(--foreground);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ============================================
+   Actions
+   ============================================ */
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.analyzeButton {
+  padding: 10px 24px;
+  font-size: 20px;
+  font-weight: 480;
+  letter-spacing: -0.10px;
+  line-height: 1.40;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  flex: 1;
+  min-width: 160px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.analyzeButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.analyzeButton:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.btnLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.cancelButton {
+  padding: 10px 24px;
+  font-size: 20px;
+  font-weight: 480;
+  letter-spacing: -0.10px;
+  line-height: 1.40;
+  border: 1px solid var(--error);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: var(--card);
+  color: var(--error);
+  flex: 1;
+  min-width: 140px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--error);
+  color: #fff;
+}
+
+.backButton {
+  padding: 10px 24px;
+  font-size: 20px;
+  font-weight: 480;
+  letter-spacing: -0.10px;
+  line-height: 1.40;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: var(--card);
+  color: var(--foreground);
+  min-width: 100px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.backButton:hover:not(:disabled) {
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  border-color: var(--foreground);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.backButton:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Vision Button */
+.ocrButton {
+  padding: 10px 24px;
+  font-size: 20px;
+  font-weight: 480;
+  letter-spacing: -0.10px;
+  line-height: 1.40;
+  border: 1px solid var(--foreground);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: var(--card);
+  color: var(--foreground);
+  flex: 1;
+  min-width: 160px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.ocrButton:hover:not(:disabled) {
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ocrButton:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Vision Section */
+.ocrSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.ocrLabel {
+  font-size: 14px;
+  font-weight: 480;
+  color: var(--foreground);
+  letter-spacing: -0.1px;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.ocrHint {
+  font-size: 12px;
+  font-weight: 330;
+  color: var(--muted-foreground);
+}
+
+.ocrTextarea {
+  width: 100%;
+  padding: var(--space-md);
+  font-family: 'FigmaMono', 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 13px;
+  font-weight: 330;
+  line-height: 1.6;
+  letter-spacing: -0.1px;
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.ocrTextarea:focus {
+  border-color: var(--foreground);
+}
+
+.ocrTextarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Report Placeholder */
+.reportPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xxl);
+  text-align: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+.reportPlaceholderIcon {
+  font-family: 'FigmaMono', monospace;
+  font-size: 48px;
+  color: var(--muted-foreground);
+  opacity: 0.3;
+  letter-spacing: 4px;
+}
+
+.reportPlaceholderText {
+  font-size: 18px;
+  font-weight: 330;
+  color: var(--foreground);
+  margin: 0;
+  letter-spacing: -0.26px;
+  opacity: 0.5;
+}
+
+.reportPlaceholderHint {
+  font-size: 13px;
+  font-weight: 330;
+  color: var(--muted-foreground);
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+}
+
+/* ============================================
+   Console — 右侧实时后台面板
+   ============================================ */
+.console {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 340px;
+  background: #0d0d0d;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Menlo', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 10;
+}
+
+.consoleLive {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 渐隐遮罩 */
+.consoleFadeTop,
+.consoleFadeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.consoleFadeTop {
+  top: 0;
+  background: linear-gradient(to bottom, #0d0d0d 0%, transparent 100%);
+}
+
+.consoleFadeBottom {
+  bottom: 0;
+  background: linear-gradient(to top, #0d0d0d 0%, transparent 100%);
+}
+
+/* 日志内容区 */
+.consoleBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 80px 20px 80px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: none;
+}
+
+.consoleBody::-webkit-scrollbar { display: none; }
+
+/* 空闲状态 */
+.consoleIdle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: rgba(255,255,255,0.25);
+  font-size: 12px;
+}
+
+.consoleCursor {
+  animation: cursorBlink 1s step-end infinite;
+  color: rgba(255,255,255,0.5);
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 日志行 */
+.consoleLine {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 1px 8px;
+  border-radius: 3px;
+  animation: logSlideIn 0.3s ease-out;
+  white-space: nowrap;
+}
+
+@keyframes logSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.consoleTime {
+  color: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+  font-size: 11px;
+  min-width: 65px;
+}
+
+.consoleTag {
+  flex-shrink: 0;
+  width: 52px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 540;
+  opacity: 0.5;
+}
+
+.consoleText {
+  color: rgba(255,255,255,0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 标签颜色 */
+.consoleTag_system .consoleTag { color: #888; }
+.consoleTag_vision .consoleTag { color: #7eb8da; }
+.consoleTag_network .consoleTag { color: #d4a574; }
+.consoleTag_analyze .consoleTag { color: #a78bfa; }
+.consoleTag_success .consoleTag { color: #6ee7b7; }
+.consoleTag_error .consoleTag { color: #f87171; }
+
+.consoleTag_success .consoleText { color: rgba(255,255,255,0.7); }
+.consoleTag_error .consoleText { color: #f87171; }
+.consoleTag_system .consoleText { color: rgba(255,255,255,0.35); }
+
+/* ============================================
+   Split Layout — 报告双栏视图
+   ============================================ */
+.splitLayout {
+  display: flex;
+  gap: var(--space-xl);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+  align-items: flex-start;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.splitLeft {
+  flex: 0 0 42%;
+  min-width: 320px;
+  overflow-y: auto;
+  height: calc(100vh - 2 * var(--space-xl));
+  padding-right: var(--space-sm);
+}
+
+.splitSticky {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.splitImagePreview {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--card);
+  border: 1px solid var(--border);
+  max-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splitImagePreview img {
+  width: 100%;
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+  display: block;
+}
+
+.splitRight {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  height: calc(100vh - 2 * var(--space-xl));
+  padding-bottom: var(--space-xl);
+}
+
+.splitActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.splitBtn {
+  flex: 1;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.splitBtn:hover {
+  opacity: 0.85;
+}
+
+.splitBtnOutline {
+  flex: 1;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 480;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.splitBtnOutline:hover {
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  border-color: var(--foreground);
+}
+
+.splitCounter {
+  font-size: 12px;
+  font-weight: 340;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin: 0;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 1100px) {
+  .console { display: none; }
+  .main { transform: none !important; }
+}
+
+@media (max-width: 900px) {
+  .splitLayout {
+    flex-direction: column;
+    padding: var(--space-lg);
+  }
+
+  .splitLeft {
+    flex: none;
+    min-width: 0;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .splitSticky {
+    position: static;
+  }
+
+  .splitImagePreview {
+    max-height: 240px;
+  }
+
+  .splitImagePreview img {
+    max-height: 240px;
+  }
+
+  .splitRight {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main { padding: var(--space-lg); }
+
+  .stepper {
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+  }
+
+  .stepLabel { font-size: 12px; }
+  .stepDesc { display: none; }
+  .stepNode { width: 28px; height: 28px; }
+  .stepLine { top: 14px; }
+
+  .actions { flex-direction: column; }
+  .analyzeButton, .backButton { width: 100%; }
+}

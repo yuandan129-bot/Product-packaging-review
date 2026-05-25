@@ -1,0 +1,91 @@
+.container {
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xxl);
+  text-align: center;
+  flex: 1;
+  width: 100%;
+  transform: translateY(-6%);
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+}
+
+.titleLeft,
+.titleRight {
+  font-size: 44px;
+  font-weight: 540;
+  line-height: 1.10;
+  letter-spacing: -0.66px;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.avatarWrapper {
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-full);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatarWrapper img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.byline {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.60px;
+  text-transform: uppercase;
+  color: var(--foreground);
+  margin: 0;
+  position: absolute;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+}
+
+@media (max-width: 768px) {
+  .titleLeft,
+  .titleRight {
+    font-size: 32px;
+    letter-spacing: -0.48px;
+  }
+
+  .titleContainer {
+    gap: var(--space-md);
+  }
+
+  .avatarWrapper {
+    width: 52px;
+    height: 52px;
+  }
+}
