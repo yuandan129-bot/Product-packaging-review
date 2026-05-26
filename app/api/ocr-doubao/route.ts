@@ -26,7 +26,7 @@ export async function POST(req: Request) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'doubao-1-5-vision-pro-32k-250115',
+        model: 'doubao-1.5-vision-pro-32k',
         messages: [
           {
             role: 'user',
