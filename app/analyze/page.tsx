@@ -141,7 +141,12 @@ export default function AnalyzePage() {
       if (!resp.ok || result.error) {
         const errMsg = result.error || resp.statusText
         addLog('error', `✗ vision extraction failed: ${errMsg}`)
-        alert(`视觉识别失败：${errMsg}`)
+        let alertMsg = `视觉识别失败：${errMsg}`
+        if (result.diagnostic) {
+          const d = result.diagnostic
+          alertMsg += `\n\n【自诊断】\n匹配到的环境变量：${d.matched_env_keys.join(', ') || '无'}\n${d.hint}`
+        }
+        alert(alertMsg)
         setIsOcrRunning(false)
         setActiveStep('extract')
         return

@@ -11,7 +11,20 @@ export async function POST(req: Request) {
 
     const apiKey = process.env.DOUBAO_API_KEY
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Doubao API Key 未配置' }), {
+      // 自诊断：列出所有已配环境变量供排查
+      const envKeys = Object.keys(process.env).filter(k =>
+        k.includes('DOUBAO') || k.includes('DEEPSEEK') || k.includes('KIMI') || k.includes('DASHSCOPE')
+      )
+      return new Response(JSON.stringify({
+        error: 'Doubao API Key 未配置',
+        diagnostic: {
+          matched_env_keys: envKeys,
+          total_env_count: Object.keys(process.env).length,
+          hint: envKeys.length === 0
+            ? 'Vercel 环境变量未注入，请检查 Settings → Environment Variables 是否保存并勾选了 Production 环境'
+            : `找到了相关变量 [${envKeys.join(', ')}] 但缺少 DOUBAO_API_KEY，请检查拼写是否完全一致`,
+        },
+      }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       })
