@@ -1,5 +1,3 @@
-export const runtime = 'edge'
-
 export async function POST(req: Request) {
   try {
     const { image } = await req.json()
@@ -56,8 +54,13 @@ export async function POST(req: Request) {
     if (!response.ok) {
       const errText = await response.text()
       console.error('Doubao API error:', response.status, errText)
+      let errMsg = `Doubao API 返回错误 (${response.status})`
+      try {
+        const errJson = JSON.parse(errText)
+        if (errJson.error?.message) errMsg += `: ${errJson.error.message}`
+      } catch {}
       return new Response(
-        JSON.stringify({ error: `Doubao API 返回错误 (${response.status})` }),
+        JSON.stringify({ error: errMsg }),
         {
           status: response.status,
           headers: { 'Content-Type': 'application/json' },

@@ -139,7 +139,9 @@ export default function AnalyzePage() {
       const result = await resp.json()
 
       if (!resp.ok || result.error) {
-        addLog('error', `✗ vision extraction failed: ${result.error || resp.statusText}`)
+        const errMsg = result.error || resp.statusText
+        addLog('error', `✗ vision extraction failed: ${errMsg}`)
+        alert(`视觉识别失败：${errMsg}`)
         setIsOcrRunning(false)
         setActiveStep('extract')
         return
@@ -149,6 +151,7 @@ export default function AnalyzePage() {
 
       if (!text.trim()) {
         addLog('error', '✗ 视觉识别未提取到文字，请确认图片清晰度')
+        alert('视觉识别未提取到文字，请确认图片清晰度')
         setIsOcrRunning(false)
         setActiveStep('extract')
         return
