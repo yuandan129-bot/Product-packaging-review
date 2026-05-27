@@ -38,7 +38,7 @@ export async function GET() {
           Authorization: `Bearer ${doubaoKey}`,
         },
         body: JSON.stringify({
-          model: "doubao-1.5-vision-pro-32k",
+          model: "doubao-1-5-vision-pro-32k-250115",
           messages: [{ role: "user", content: "回复 OK" }],
           max_tokens: 10,
         }),
