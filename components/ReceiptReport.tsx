@@ -4,6 +4,91 @@ import { useState, useRef } from 'react'
 import type { ComplianceReport } from '../types/compliance'
 import styles from './ReceiptReport.module.css'
 
+// 法律条款结构化数据
+let _clausesCache: Record<string, Record<string, string>> | null = null
+async function loadClauses(): Promise<Record<string, Record<string, string>>> {
+  if (_clausesCache) return _clausesCache
+  try {
+    const resp = await fetch('/knowledge_base/clauses.json')
+    _clausesCache = await resp.json()
+    return _clausesCache!
+  } catch {
+    return {}
+  }
+}
+
+function parseRegulation(regText: string): { doc: string; clause: string } | null {
+  if (!regText) return null
+  // 匹配不同格式：GB 7718-2025 第4.1.2条 / GB 28050 4.2 / 广告法 第9条 / 食品标识监督管理办法 第15条
+  const patterns = [
+    /(GB\s*\d+)\S*\s*第?\s*(\d+(?:\.\d+)*)\s*[条节]/,
+    /(GB\s*\d+)\S*\s*(\d+(?:\.\d+)*)/,
+    /(广告法)\s*第?\s*(\d+)\s*条/,
+    /(食品标识监督管理办法)\s*第?\s*(\d+)\s*条/,
+  ]
+  for (const p of patterns) {
+    const m = regText.match(p)
+    if (m) return { doc: m[1].replace(/\s/g, ' '), clause: m[2] }
+  }
+  return null
+}
+
+// 从 regulation 字段提取内嵌原文（格式：条款编号：原文内容）
+function extractInlineClause(regText: string): string | null {
+  const idx = regText.indexOf('：')
+  if (idx === -1) { const colon = regText.indexOf(':'); if (colon === -1) return null; const after = regText.slice(colon + 1).trim(); return after.length > 15 ? after : null }
+  const after = regText.slice(idx + 1).trim()
+  return after.length > 10 ? after : null
+}
+
+// 从 regulation 字段提取条款编号（去掉内嵌原文后的编号部分）
+function extractRefNumber(regText: string): string {
+  const idx = regText.indexOf('：')
+  if (idx === -1) return regText
+  return regText.slice(0, idx).trim()
+}
+
+function ClausePopover({ regulation }: { regulation: string }) {
+  const [clauseText, setClauseText] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleHover = async () => {
+    if (clauseText || loading) return
+
+    // 优先：从 regulation 字段直接提取内嵌原文
+    const inlineText = extractInlineClause(regulation)
+    if (inlineText) {
+      setClauseText(inlineText)
+      return
+    }
+
+    // Fallback：从 clauses.json 查找
+    setLoading(true)
+    const refNum = extractRefNumber(regulation)
+    const parsed = parseRegulation(refNum)
+    if (!parsed) { setClauseText(''); setLoading(false); return }
+    const clauses = await loadClauses()
+    const text = clauses[parsed.doc]?.[parsed.clause]
+    setClauseText(text || `条款原文暂未收录，欢迎反馈补充。\n\n依据：${refNum}`)
+    setLoading(false)
+  }
+
+  return (
+    <span
+      className={styles.regulationRef}
+      onMouseEnter={handleHover}
+      onMouseLeave={() => setClauseText(null)}
+    >
+      {extractRefNumber(regulation)}
+      {(clauseText || loading) && (
+        <span className={styles.clausePopover}>
+          {loading ? '加载中...' : clauseText}
+        </span>
+      )}
+    </span>
+  )
+}
+
 interface BrandFile {
   name: string
   type: string
@@ -56,6 +141,7 @@ const _dummyError = null as any
 export default function ReceiptReport({ report, modelName, onDownloadJSON }: Props) {
   const reportRef = useRef<HTMLDivElement>(null)
   const [currentPage, setCurrentPage] = useState(0)
+  const [exporting, setExporting] = useState(false)
 
   const totalIssues = (report.criticalErrors?.length || 0) + (report.warnings?.length || 0) + (report.typoIssues?.length || 0)
   const checklistItems = Object.entries(report.checklist || {})
@@ -74,10 +160,11 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
   ;(report.warnings || []).forEach((w, i) => allIssues.push({ kind: 'warn', idx: i, item: w }))
   ;(report.typoIssues || []).forEach((t, i) => allIssues.push({ kind: 'typo', idx: i, item: t }))
 
-  const totalPages = totalIssues > 0 ? Math.ceil(totalIssues / ITEMS_PER_PAGE) : 1
-  const startIdx = currentPage * ITEMS_PER_PAGE
-  const pageIssues = allIssues.slice(startIdx, startIdx + ITEMS_PER_PAGE)
-  const isLastPage = currentPage >= totalPages - 1
+  const effectivePerPage = exporting ? 999 : ITEMS_PER_PAGE
+  const totalPages = totalIssues > 0 ? Math.ceil(totalIssues / effectivePerPage) : 1
+  const startIdx = exporting ? 0 : currentPage * ITEMS_PER_PAGE
+  const pageIssues = exporting ? allIssues : allIssues.slice(startIdx, startIdx + ITEMS_PER_PAGE)
+  const isLastPage = exporting || currentPage >= totalPages - 1
 
   // ── 渲染单个问题卡片 ──
   const renderIssue = (issue: typeof allIssues[0], globalIdx: number) => {
@@ -110,7 +197,7 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
         </div>
         <p className={styles.issueMsg}>{item.message}</p>
         {item.position && <p className={styles.issueMeta}>📍 位置：{item.position}</p>}
-        {item.regulation && <p className={styles.issueMeta}>📋 依据：{item.regulation}</p>}
+        {item.regulation && <p className={styles.issueMeta}>📋 依据：<ClausePopover regulation={item.regulation} /></p>}
         {item.suggestion && <p className={styles.issueSuggestion}>💡 建议：{item.suggestion}</p>}
         {item.referenceDoc && (
           <p className={styles.issueMeta}>📄 参考文档：<RefLink docName={item.referenceDoc} /></p>
@@ -122,6 +209,9 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
   // ── 保存按钮 ──
   const handleSaveImage = async () => {
     if (!reportRef.current) return
+    setExporting(true)
+    // 等 React 渲染完所有问题后再截图
+    await new Promise((r) => setTimeout(r, 300))
     try {
       const { toPng } = await import('html-to-image')
       const dataUrl = await toPng(reportRef.current, { backgroundColor: '#ffffff', pixelRatio: 2 })
@@ -131,10 +221,18 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
       a.click()
     } catch {
       alert('图片导出失败，请尝试打印为 PDF')
+    } finally {
+      setExporting(false)
     }
   }
 
-  const handlePrint = () => window.print()
+  const handlePrint = () => {
+    setExporting(true)
+    setTimeout(() => {
+      window.print()
+      setExporting(false)
+    }, 300)
+  }
 
   // ── Page 1: 头部 + 摘要 + 总览 + 问题详述（含第一页问题）──
   const renderPageOne = () => (
@@ -262,7 +360,7 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
       {currentPage === 0 ? renderPageOne() : renderContinuationPage()}
 
       {/* 分页控件 */}
-      {totalPages > 1 && (
+      {!exporting && totalPages > 1 && (
         <div className={styles.pagination}>
           <button
             className={styles.pageBtn}

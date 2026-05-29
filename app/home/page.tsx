@@ -36,16 +36,10 @@ export default function Home() {
 
   const [brandFiles, setBrandFiles] = useState<File[]>([])
   const [brandPreviewUrls, setBrandPreviewUrls] = useState<string[]>([])
-  const [isChecking, setIsChecking] = useState(true)
   const brandInputRef = useRef<HTMLInputElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!sessionStorage.getItem('splashSeen')) {
-      router.replace('/splash')
-      return
-    }
-    setIsChecking(false)
     setReviewCount(Math.floor(Math.random() * 1000))
     return () => {
       brandPreviewUrls.forEach((url) => URL.revokeObjectURL(url))
@@ -143,8 +137,6 @@ export default function Home() {
   const handleStandardClick = (standard: { code: string; name: string; docPath: string | null }) => {
     setModalStandard(standard)
   }
-
-  if (isChecking) return null
 
   return (
     <main className={styles.container}>

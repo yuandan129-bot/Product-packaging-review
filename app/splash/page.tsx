@@ -7,7 +7,7 @@ import Image from "next/image"
 import { ImageTrail } from "../../components/ImageTrail"
 import styles from "./splash.module.css"
 
-// 鼠标跟随动效的图片 —— 已压缩为 WebP，单张 ~10-28KB
+// 鼠标跟随动效的图片 —— 已压缩为 WebP，单张 ~5-28KB
 const TRAIL_IMAGES = [
   { src: "/trail-images/1.webp", size: 120 },
   { src: "/trail-images/2.webp", size: 90 },
@@ -22,6 +22,10 @@ const TRAIL_IMAGES = [
   { src: "/trail-images/12.webp", size: 100 },
   { src: "/trail-images/13.webp", size: 150 },
   { src: "/trail-images/14.webp", size: 100 },
+  { src: "/trail-images/15.webp", size: 135 },
+  { src: "/trail-images/16.webp", size: 110 },
+  { src: "/trail-images/17.webp", size: 95 },
+  { src: "/trail-images/18.webp", size: 120 },
 ]
 
 export default function SplashScreen() {
@@ -48,8 +52,7 @@ export default function SplashScreen() {
   }, [])
 
   const handleClick = () => {
-    sessionStorage.setItem('splashSeen', '1')
-    router.push("/home")
+    router.push("/home?from=splash")
   }
 
   const trailItems = TRAIL_IMAGES.map((img) => (

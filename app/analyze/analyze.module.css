@@ -88,7 +88,6 @@
   align-items: center;
   position: relative;
   flex: 1;
-  min-width: 0;
 }
 
 .stepLine {
@@ -178,7 +177,7 @@
   font-weight: 540;
   letter-spacing: -0.1px;
   color: var(--foreground);
-  white-space: nowrap;
+  text-align: center;
   transition: color 0.35s ease;
 }
 
@@ -189,7 +188,8 @@
   font-size: 12px;
   font-weight: 320;
   color: var(--border);
-  white-space: nowrap;
+  text-align: center;
+  line-height: 1.35;
   transition: color 0.35s ease;
 }
 

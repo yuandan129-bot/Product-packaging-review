@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Footer from '../components/Footer'
+import SplashGuard from '../components/SplashGuard'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" data-scroll-behavior="smooth">
       <body>
-        {children}
+        <SplashGuard>{children}</SplashGuard>
         <Footer />
       </body>
     </html>

@@ -421,6 +421,39 @@
   margin: 1px 0;
 }
 
+/* ── Regulation Popover ── */
+.regulationRef {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  position: relative;
+  display: inline;
+}
+
+.regulationRef:hover {
+  color: #1d4ed8;
+}
+
+.clausePopover {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  min-width: 260px;
+  max-width: 420px;
+  background: #fff;
+  border: 1px solid #d0ccc5;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #333;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 100;
+  white-space: normal;
+  text-decoration: none;
+}
+
 /* ── Print ── */
 @media print {
   .reportWrapper {
