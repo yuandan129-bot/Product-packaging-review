@@ -10,3 +10,9 @@ build/
 *.tsbuildinfo
 next-env.d.ts
 .claude/worktrees/
+
+# 私人需求整理文档（不上传 GitHub）
+DOCS-INDEX.md
+迭代需求清单-*.md
+新功能设计方案-*.md
+后端概念与实现逻辑-小白版.md

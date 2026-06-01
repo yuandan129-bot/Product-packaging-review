@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { getRedis } from "../../../lib/redis"
 
 export const maxDuration = 60
 
@@ -182,6 +183,29 @@ export async function POST(request: NextRequest) {
 
     if (hasPhysicalDims && result.checklist) {
       result.checklist["文字高度合规"] = true
+    }
+
+    // 自动存档
+    try {
+      const redis = getRedis()
+      const id = `review:${Date.now()}`
+      const record = {
+        id,
+        timestamp: new Date().toISOString(),
+        productName: result.productName || '未知产品',
+        category: result.category || '未分类',
+        pipeline: 'deepseek',
+        issues: {
+          errors: result.criticalErrors?.length || 0,
+          warnings: result.warnings?.length || 0,
+          typos: result.typoIssues?.length || 0,
+        },
+        fullReport: result,
+      }
+      await redis.set(id, JSON.stringify(record))
+      await redis.zadd('review:index', { score: Date.now(), member: id })
+    } catch (e: any) {
+      console.warn('Auto-save review failed (non-fatal):', e.message)
     }
 
     return NextResponse.json(result)
