@@ -9,8 +9,8 @@ export default function SplashGuard({ children }: { children: React.ReactNode })
   const checkedRef = useRef(false)
 
   useEffect(() => {
-    // splash 页面自身不检查
-    if (pathname === '/splash') {
+    // splash 和管理后台不检查
+    if (pathname === '/splash' || pathname === '/history') {
       checkedRef.current = true
       return
     }
