@@ -271,6 +271,18 @@ export default function ReceiptReport({ report, modelName, onDownloadJSON }: Pro
         </div>
       </section>
 
+      {/* 字体版权风险提醒 */}
+      <div className={styles.fontWarningBox}>
+        <span className={styles.fontWarningIcon}>⚠️</span>
+        <div>
+          <p className={styles.fontWarningTitle}>字体版权风险提示</p>
+          <p className={styles.fontWarningText}>
+            包装印刷所使用的字体需确认拥有商用授权，请注意字体版权风险。
+            建议优先使用免费商用字体（如思源黑体、MiSans、阿里巴巴普惠体等）。
+          </p>
+        </div>
+      </div>
+
       <div className={styles.divider} />
 
       {/* 检测结果总览表 */}
