@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getRedis } from "../../lib/redis"
+import { getRedis } from "../../../lib/redis"
 
 const STATS_KEY = "packaging_review_stats"
 
