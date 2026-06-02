@@ -580,11 +580,9 @@ export default function BarcodePage() {
                 </div>
               )}
             </div>
-            {barcodeCount > 0 && (
-              <div className={styles.usageCounter}>
-                已为您生成过 {barcodeCount} 张条码
-              </div>
-            )}
+            <div className={styles.usageCounter}>
+              已为您生成过 {barcodeCount} 张条码
+            </div>
           </div>
         </div>
       </div>
