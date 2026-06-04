@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import Image from "next/image"
 import { getStats, getStatsSync, incrementBarcode } from "../../lib/usageStats"
@@ -85,7 +85,6 @@ function RatioIcon({ icon }: { icon: Preset["icon"] }) {
 
 export default function BarcodePage() {
   const router = useRouter()
-  const pathname = usePathname()
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // 条码值
@@ -332,20 +331,6 @@ export default function BarcodePage() {
             />
             January
           </span>
-          <div className={styles.navLinks}>
-            <a
-              className={`${styles.navLink} ${pathname === "/home" ? styles.navLinkActive : ""}`}
-              onClick={() => router.push("/home")}
-            >
-              包装审核
-            </a>
-            <a
-              className={`${styles.navLink} ${pathname === "/barcode" ? styles.navLinkActive : ""}`}
-              onClick={() => router.push("/barcode")}
-            >
-              条码生成
-            </a>
-          </div>
         </div>
       </nav>
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { motion } from 'motion/react'
 import Image from 'next/image'
 import { HoverText } from '../../components/HoverText'
@@ -19,7 +19,6 @@ const STANDARDS = [
 
 export default function Home() {
   const router = useRouter()
-  const pathname = usePathname()
   const [reviewCount, setReviewCount] = useState(0)
 
   /*
@@ -152,20 +151,6 @@ export default function Home() {
               className={styles.logoImage}
             />
             <span>January</span>
-          </div>
-          <div className={styles.navLinks}>
-            <a
-              className={`${styles.navLink} ${pathname === '/home' ? styles.navLinkActive : ''}`}
-              onClick={() => router.push('/home')}
-            >
-              包装审核
-            </a>
-            <a
-              className={`${styles.navLink} ${pathname === '/barcode' ? styles.navLinkActive : ''}`}
-              onClick={() => router.push('/barcode')}
-            >
-              条码生成
-            </a>
           </div>
         </div>
       </nav>

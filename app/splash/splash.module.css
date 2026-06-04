@@ -1,32 +1,47 @@
 .container {
   min-height: 100vh;
-  background: var(--background);
+  background: #000000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 
-.content {
+/* ── 内容层（包裹标题、卡片、描述、二维码），浮在背景上方 ── */
+.contentLayer {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xxl);
-  text-align: center;
-  flex: 1;
   width: 100%;
-  transform: translateY(-6%);
+  padding: var(--space-xl);
 }
 
-.titleContainer {
+/* ── 右上角 By-January ── */
+.bylineTop {
+  position: absolute;
+  top: var(--space-xl);
+  right: var(--space-xl);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.60px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  z-index: 10;
+}
+
+/* ── 标题区：Packaging + 头像 + Testing ── */
+.titleSection {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-lg);
+  margin-bottom: 14px;
 }
 
 .titleLeft,
@@ -35,7 +50,7 @@
   font-weight: 540;
   line-height: 1.10;
   letter-spacing: -0.66px;
-  color: var(--foreground);
+  color: #ffffff;
   margin: 0;
 }
 
@@ -59,20 +74,128 @@
   object-fit: cover;
 }
 
-.byline {
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.60px;
-  text-transform: uppercase;
-  color: var(--foreground);
-  margin: 0;
-  position: absolute;
-  bottom: var(--space-xl);
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+/* ── 功能卡片行 ── */
+.cardsRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 35px;
+  margin-top: 100px;
+  margin-bottom: 56px;
+  width: 100%;
+  max-width: 920px;
 }
 
+.card {
+  flex: 1;
+  min-width: 0;
+  max-width: 264px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 31px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  user-select: none;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.card:active {
+  transform: scale(0.97);
+}
+
+/* 占位卡片 — 置灰不可点击 */
+.cardDisabled {
+  composes: card;
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.cardDisabled:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: none;
+}
+
+/* 卡片图标 */
+.cardIcon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.cardIconDimmed {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+/* 卡片文字 */
+.cardLabel {
+  font-size: 22px;
+  font-weight: 480;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  transition: color 0.25s ease, font-weight 0.25s ease;
+}
+
+.card:hover .cardLabel {
+  color: #ffffff;
+  font-weight: 540;
+}
+
+/* ── 底部区域：描述文字 + 二维码 ── */
+.bottomSection {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 400px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.description {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 330;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  flex: 1;
+}
+
+.qrcodeWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  height: 108px;
+  flex-shrink: 0;
+  z-index: 10;
+  margin-right: 50px;
+}
+
+.qrcode {
+  height: 100%;
+  width: auto;
+  border-radius: 4px;
+}
+
+/* ── 响应式 ── */
 @media (max-width: 768px) {
   .titleLeft,
   .titleRight {
@@ -80,12 +203,38 @@
     letter-spacing: -0.48px;
   }
 
-  .titleContainer {
+  .titleSection {
     gap: var(--space-md);
+    margin-bottom: 14px;
   }
 
   .avatarWrapper {
     width: 52px;
     height: 52px;
+  }
+
+  .cardsRow {
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: 40px;
+  }
+
+  .card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .bylineTop {
+    top: var(--space-md);
+    right: var(--space-md);
+  }
+
+  .bottomSection {
+    margin-top: 300px;
+  }
+
+  .description {
+    font-size: 14px;
+    padding: 0 var(--space-md);
   }
 }
