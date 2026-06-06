@@ -144,7 +144,7 @@ export default function Home() {
         <div className={styles.navContent}>
           <div className={styles.logo} onClick={() => router.push('/splash')}>
             <Image
-              src="/avatar.png"
+              src="/头像.png"
               alt="Logo"
               width={32}
               height={32}

@@ -323,7 +323,7 @@ export default function BarcodePage() {
         <div className={styles.navContent}>
           <span className={styles.navLogo} onClick={() => router.push("/splash")}>
             <Image
-              src="/avatar.png"
+              src="/头像.png"
               alt="Logo"
               width={32}
               height={32}

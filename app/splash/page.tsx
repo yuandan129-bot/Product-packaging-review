@@ -1,11 +1,11 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
-import Image from "next/image"
 import { ShinyText } from "../../components/ShinyText"
 import HeroBackground from "../../components/HeroBackground"
+import FlipAvatar from "../../components/FlipAvatar"
 import styles from "./splash.module.css"
 
 interface FeatureCard {
@@ -23,6 +23,11 @@ const FEATURE_CARDS: FeatureCard[] = [
 
 export default function SplashScreen() {
   const router = useRouter()
+  const [isAvatarFlipped, setIsAvatarFlipped] = useState(false)
+
+  // 卡片交错动画延迟：hover 时 条码(1)→包装(0)→神秘(2)，离开时 左→右
+  const cardDelayOn = [0.1, 0, 0.2]
+  const cardDelayOff = [0, 0.1, 0.2]
 
   // 每个卡片的 ShinyText 随机延迟（仅初始化时生成，后续渲染不变）
   const shinyDelays = useRef(FEATURE_CARDS.map(() => Math.random() * 4))
@@ -51,33 +56,26 @@ export default function SplashScreen() {
         >
           <motion.span
             className={styles.titleLeft}
-            initial={{ opacity: 1, x: 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            animate={{ x: isAvatarFlipped ? -46 : 0 }}
+            transition={{ type: "spring", stiffness: 150, damping: 18 }}
           >
             Packaging
           </motion.span>
 
           <motion.div
             className={styles.avatarWrapper}
-            initial={{ scale: 1, opacity: 1 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <Image
-              src="/avatar.png"
-              alt="Avatar"
-              width={68}
-              height={68}
-              priority
+            <FlipAvatar
+              frontImage="/头像.png"
+              backImage="/二维码2.png"
+              onFlipChange={setIsAvatarFlipped}
             />
           </motion.div>
 
           <motion.span
             className={styles.titleRight}
-            initial={{ opacity: 1, x: 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            animate={{ x: isAvatarFlipped ? 46 : 0 }}
+            transition={{ type: "spring", stiffness: 150, damping: 18 }}
           >
             Testing
           </motion.span>
@@ -95,6 +93,13 @@ export default function SplashScreen() {
               key={card.label}
               className={card.disabled ? styles.cardDisabled : styles.card}
               onClick={() => handleCardClick(card)}
+              animate={{ y: isAvatarFlipped ? 10 : 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+                delay: isAvatarFlipped ? cardDelayOn[i] : cardDelayOff[i],
+              }}
               whileHover={card.disabled ? undefined : { scale: 1.04 }}
               whileTap={card.disabled ? undefined : { scale: 0.97 }}
             >
@@ -119,7 +124,7 @@ export default function SplashScreen() {
           ))}
         </motion.div>
 
-        {/* ── 描述文字 + 二维码 ── */}
+        {/* ── 描述文字 ── */}
         <div className={styles.bottomSection}>
           <motion.p
             className={styles.description}
@@ -127,31 +132,24 @@ export default function SplashScreen() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.0 }}
           >
-            产品包装背标审核：基于豆包+DeepSeek双模型配合专属知识库，有效降低AI幻觉，让审核更靠谱
+            帮你搞定产品包装的内容规范性审核和条码生成，给你的项目进度提提速
             <br />
-            条码生成：可校验条码合规性，并基于国际标准条码算法（如EAN-13/Code128等）生成可下载的矢量图形（SVG/PDF）
-            <br />
-            更多包装相关功能正在路上。希望您用得开心，有任何需求或建议欢迎随时反馈（见下方微信二维码）
-          </motion.p>
-
-          {/* ── 微信二维码 ── */}
-          <motion.div
-            className={styles.qrcodeWrapper}
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            transition={{ opacity: { duration: 0.6, delay: 1.2 }, scale: { type: "tween", ease: "easeOut", duration: 0.4 } }}
-            whileHover={{ scale: 2 }}
-            style={{ transformOrigin: "bottom right" }}
-          >
-            <Image
-              src="/qrcode-wechat.jpg"
-              alt="微信二维码"
-              width={80}
-              height={80}
-              className={styles.qrcode}
-              unoptimized
+            审核依靠DOUBAO-Vision-PRO+DeepSeek 双模型；条码基于国标算法（EAN-13/Code128）；
+            <ShinyText
+              text="有任何问题请点击头像向我反馈"
+              speed={2}
+              delay={0}
+              color="rgba(255,255,255,0.5)"
+              shineColor="#ffffff"
+              spread={60}
+              direction="left"
+              className={styles.descriptionHighlight}
             />
-          </motion.div>
+            <br />
+            <span className={styles.descriptionDim}>
+              更多神秘功能开发中…（也可以向我提提你的痛点）
+            </span>
+          </motion.p>
         </div>
       </div>
     </main>

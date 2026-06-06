@@ -1,0 +1,59 @@
+.container {
+  width: 63px;
+  height: 63px;
+  perspective: 800px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-style: preserve-3d;
+}
+
+.flipped {
+  transform: rotateY(180deg) scale(1.15) translateY(-20px);
+}
+
+/* 正面 — 圆形头像（80px） */
+.front {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 背面 — 方形二维码（200px 原生渲染，清晰不糊） */
+.back {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 158px;
+  height: 158px;
+  margin-left: -79px;
+  margin-top: -79px;
+  border-radius: 25px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.back img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
